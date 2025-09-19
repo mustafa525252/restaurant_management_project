@@ -8,5 +8,10 @@ class MenuCategory(models.Model):
         unique=True
     )
 
+    class Meta:
+        verbose_name = "Menu Category"
+        verbose_name_plural = "Menu Categories"
+        ordering = ["name"]
+
     def __str__(self):
         return self.name
