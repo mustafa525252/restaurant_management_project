@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class OrderStatus(models.Model):
-    name = models.CharField(
+    name=models.CharField(
         max_length=50,
         unique=True
     )
