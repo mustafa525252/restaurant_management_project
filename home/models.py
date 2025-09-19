@@ -1,6 +1,10 @@
 from django.db import models
 
 class MenuCategory(models.Model):
+    """
+    Represents a category of menu items, such as Breakfast, Lunch, or Dinner.
+    This model allow you to group menu items by category for easy filtering.
+    """
     name=models.CharField(
         max_length=100,
         unique=True
@@ -12,4 +16,5 @@ class MenuCategory(models.Model):
         ordering = ["name"]
 
     def __str__(self):
+        # Return the category name as its string representation.
         return self.name
