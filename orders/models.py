@@ -7,6 +7,10 @@ class OrderStatus(models.Model):
         max_length=50,
         unique=True
     )
+    class Meta:
+        verbose_name="Order Status"
+        verbose_name_plural = "Order Statuses"
+        ordering = ['name']
 
     def __str__(self):
         return self.name
