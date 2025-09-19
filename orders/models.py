@@ -1,6 +1,6 @@
 from django.db import models
 from .models import OrderStatus
-import django.config.auth.models import User
+from django.config.auth.models import User
 
 # Create your models here.
 
