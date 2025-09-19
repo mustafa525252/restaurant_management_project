@@ -1,7 +1,8 @@
 import secrets
 import string
 
+COUPON_CHARACTERS = string.ascii_uppercase + string.digits
+
 def generate_coupon_code(length=10):
-    characters = string.ascii_uppercase + string.digits
-    code = ''.join(secrets.choice(characters) for _ in range(length))
+    code = ''.join(secrets.choice(COUPON_CHARACTERS) for _ in range(length))
     return code
