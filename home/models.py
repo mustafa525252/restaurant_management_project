@@ -12,6 +12,11 @@ class MenuCategory(models.Model):
         verbose_name = "Menu Category"
         verbose_name_plural = "Menu Categories"
         ordering = ["name"]
+        
 
     def __str__(self):
+        """
+        Return a human-readable string representation of the category.
+        This will display as the category name in admin and Django Shell.
+        """
         return self.name
