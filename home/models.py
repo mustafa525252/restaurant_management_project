@@ -4,10 +4,6 @@ from django.db import models
 
 # Create your models here.
 class MenuCategory(models.Model):
-    """
-    Model representing a category in the menu.
-    Example: Starters, Main Course, Desserts.
-    """
 
     name=models.CharField(max_length=100,unique=True)
 
