@@ -1,9 +1,9 @@
 
 
 
+from orders.models import Coupon # Make sure you have Coupon model
 import string
 import secrets
-from orders.models import Coupon #Make sure you have coupon model
 
 def generate_coupon_code(length=10):
     characters = string.ascii_uppercase + string.digits
