@@ -30,7 +30,7 @@ class Order(models.Model):
     )
 
     def __str__(self):
-        return f"Order #{self.id} - {self.order_status.name if self.status else 'No Status'}"
+        return f"Order #{self.id} - {self.order_status.name if self.order_status else 'No Status'}"
 
     class Meta:
         ordering=['-order_date']
