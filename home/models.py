@@ -12,7 +12,6 @@ class MenuCategory(models.Model):
         verbose_name_plural = "Menu Categories"
         ordering = ["name"]
         
-
     def __str__(self):
         """
         Return a human-readable string representation of the category.
