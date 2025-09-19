@@ -1,3 +1,5 @@
+
+
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -17,7 +19,7 @@ class Order(models.Model):
     customer = models.ForeignKey(
         User,
         on_delete = models.CASCADE,
-        related_name = 'orders'
+        related_name = 'customer_orders'
         )
     order_date=models.DateTimeField(auto_now_add = True)
 
@@ -26,7 +28,7 @@ class Order(models.Model):
         on_delete=models.SET_NULL,
         null = True,
         blank = True,
-        related_name = 'orders'
+        related_name = 'status_orders'
     )
 
     def __str__(self):
