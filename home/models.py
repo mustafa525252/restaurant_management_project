@@ -1,4 +1,7 @@
-
+"""
+models.py
+This module defines the database models for the application.
+"""
 
 from django.db import models
 
