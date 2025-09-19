@@ -9,13 +9,13 @@ def fetch_menu_categories():
         categories = response.json()
         print("Menu Categories:")
         for category in categories:
-            print(f"- {category['name']}")  # ✅ Properly indented inside the loop
-    except requests.exceptions.HTTPError as http_err:  # ✅ Correct casing: HTTPError
+            print(f"- {category['name']}")
+    except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
     except requests.exceptions.ConnectionError:
         print("Error: Could not connect to the server.")
     except requests.exceptions.Timeout:
-        print("Error: Request timed out.")  # ✅ Corrected typo
+        print("Error: Request timed out.")
     except requests.exceptions.RequestException as err:
         print(f"An error occurred: {err}")
 
