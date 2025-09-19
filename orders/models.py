@@ -1,5 +1,5 @@
 from django.db import models
-from django.config.auth.models import User
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -14,14 +14,14 @@ class OrderStatus(models.Model):
         return self.name
 
 class Order(models.Model):
-    customer=models.ForeignKey(
+    customer=model.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='orders'
         )
     order_date=models.DateTimeField(auto_now_add=True)
 
-    status=model.ForeignKey(
+    order_status=model.ForeignKey(
         "OrderStatus",
         on_delete=models.SET_NULL,
         null=True,
@@ -30,7 +30,7 @@ class Order(models.Model):
     )
 
     def __str__(self):
-        return f"Order #{self.id} - {self.status.name if self.status else 'No Status'}"
+        return f"Order #{self.id} - {self.order_status.name if self.status else 'No Status'}"
 
     class Meta:
         ordering=['-order_date']
