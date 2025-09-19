@@ -21,7 +21,7 @@ class Order(models.Model):
         )
     order_date=models.DateTimeField(auto_now_add=True)
 
-    order_status=model.ForeignKey(
+    order_status=models.ForeignKey(
         "OrderStatus",
         on_delete=models.SET_NULL,
         null=True,
