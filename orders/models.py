@@ -1,9 +1,7 @@
 
-
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
 
 class OrderStatus(models.Model):
     name = models.CharField(max_length=50,unique=True)
@@ -35,4 +33,6 @@ class Order(models.Model):
         return f"Order #{self.id} - {self.order_status.name if self.order_status else 'No Status'}"
 
     class Meta:
+        verbose_name="Order"
+        verbose_name_plural="Orders"
         ordering = ['-order_date']
