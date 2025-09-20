@@ -21,7 +21,6 @@ class Order(models.Model):
         related_name='customer_orders'
     )
     order_date = models.DateTimeField(auto_now_add=True)
-
     order_status = models.ForeignKey(
         OrderStatus,
         on_delete=models.SET_NULL,
@@ -30,6 +29,10 @@ class Order(models.Model):
         related_name='status_orders'
     )
 
+    name=models.CharField(max_length=100)
+    quantity=models.PositiveIntegerField(default=1)
+    price=models.DecimalField(max_digits=10, decimal_places=2)
+    
     def __str__(self):
         return f"Order #{self.id} - {self.order_status.name if self.order_status else 'No Status'}"
 
