@@ -34,6 +34,6 @@ class Order(models.Model):
         return f"Order #{self.id} - {self.order_status.name if self.order_status else 'No Status'}"
 
     class Meta:
-        verbose_name="Order"
-        verbose_name_plural="Orders"
+        verbose_name = "Order"
+        verbose_name_plural = "Orders"
         ordering = ['-order_date']
