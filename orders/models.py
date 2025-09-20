@@ -16,7 +16,7 @@ class OrderStatus(models.Model):
 
 class Order(models.Model):
     customer     = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='customer_orders'
+        User, on_delete=models.CASCADE, related_name='orders'
     )
     order_date   = models.DateTimeField(auto_now_add=True)
     order_status = models.ForeignKey(
@@ -24,7 +24,7 @@ class Order(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='status_orders'
+        related_name='orders'
     )
 
     name     = models.CharField(max_length=100)
