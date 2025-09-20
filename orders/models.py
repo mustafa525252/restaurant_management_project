@@ -9,6 +9,7 @@ class OrderStatus(models.Model):
     class Meta:
         verbose_name = "Order Status"
         verbose_name_plural = "Order Statuses"
+        ordering = ['name']
 
     def __str__(self):
         return self.name
