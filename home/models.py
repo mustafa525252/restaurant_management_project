@@ -13,7 +13,7 @@ class MenuCategory(models.Model):
         verbose_name="Category Name"
     )
 
-class Meta:
+    class Meta:
         verbose_name = "Menu Category"
         verbose_name_plural = "Menu Categories"
         ordering = ["name"]
