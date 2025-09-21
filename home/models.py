@@ -11,7 +11,7 @@ class MenuCategory(models.Model):
         max_length=100,
         unique=True,
         verbose_name="Category Name"
-        )
+    )
 
     class Meta:
         verbose_name = "Menu Category"
