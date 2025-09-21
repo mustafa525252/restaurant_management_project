@@ -12,7 +12,7 @@ class MenuCategory(models.Model):
     name = models.CharField(
         max_length=100, 
         unique=True, 
-        verbose_name="Category Name"
+        verbose_name="Category Name" 
     )
 
     class Meta:
