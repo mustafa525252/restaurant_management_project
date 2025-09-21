@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class MenuCategory(models.Model):
     """
     Represents a category of menu items, such as Breakfast, Lunch, or Dinner.
@@ -7,11 +8,8 @@ class MenuCategory(models.Model):
     This model allow you to group menu items by category so they can easily 
     filter and display in different sections of the menu.
     """
-    name=models.CharField(
-        max_length=100,
-        unique=True,
-        verbose_name="Category Name"
-    )
+    
+    name=models.CharField(max_length=100, unique=True, verbose_name="Category Name")
 
     class Meta:
         verbose_name = "Menu Category"
