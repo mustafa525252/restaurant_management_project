@@ -18,3 +18,7 @@ class TableDetailAPIView(generics.RetrieveAPIView):
 class AvailableTablesAPIView(generics.ListAPIView):
     queryset = Table.objects.filter(is_available=True)
     serializer_class = TableSerializer
+
+class AvailableTablesAPIView(generics.ListAPIView):
+    queryset = Table.objects.filter(is_available=True)
+    serializer_class = TableSerializer
