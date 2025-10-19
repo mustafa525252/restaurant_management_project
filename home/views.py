@@ -24,8 +24,13 @@ class AvailableTablesAPIView(generics.ListAPIView):
     serializer_class = TableSerializer
 
 class AvailableTablesAPIView(generics.ListAPIView):
-    queryset = Table.objects.filter(is_available=True)
+    """
+    Returns a list of tables that are currently available for reservation.
+    """
     serializer_class = TableSerializer
+
+    def get_queryset(self):
+        return Table.objects.filter(is_available=True)
     
 class CreateOrderAPIView(APIView):
     def post(self, request):
