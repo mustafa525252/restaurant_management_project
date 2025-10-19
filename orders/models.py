@@ -1,14 +1,12 @@
-
 from django.db import models
 from django.contrib.auth.models import User
-from home.models import Table  # if orders are linked to restaurant tables
-from home.models import MenuItem 
-from django.conf import settings
+from django.utils import timezone
 
 
 class ActiveOrderManager(models.Manager):
     def get_active_orders(self):
         return self.filter(order_status__name__in=['pending', 'processing'])
+
 
 class OrderStatus(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -34,7 +32,6 @@ class Order(models.Model):
         blank=True,
         related_name='orders'
     )
-
     name = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -50,21 +47,22 @@ class Order(models.Model):
         verbose_name_plural = "Orders"
         ordering = ['-order_date']
 
-    class Coupon(models.Model):
-        code = models.CharField(max_length=50, unique=True)
-        discount_percentage = models.DecimalField(max_digits=5, decimal_places=2)
-        is_active = models.BooleanField(default=True)
-        valid_form = models.DateField()
-        valid_until = models.DateField()
 
-        class Meta:
-            verbose_name = "Coupon"
-            verbose_name_plural = "Coupons"
-            ordering = ['-valid_form']
+class Coupon(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+    valid_form = models.DateField()
+    valid_until = models.DateField()
 
-        def __str__(self):
-            return f"{self.code} ({self.discount_percentage}% off)"
-        
-        def is_valid(self):
-            today = timezone.now().date()
-            return self.is_active and self.valid_form <= today <= self.valid_until
+    class Meta:
+        verbose_name = "Coupon"
+        verbose_name_plural = "Coupons"
+        ordering = ['-valid_form']
+
+    def __str__(self):
+        return f"{self.code} ({self.discount_percentage}% off)"
+    
+    def is_valid(self):
+        today = timezone.now().date()
+        return self.is_active and self.valid_form <= today <= self.valid_until

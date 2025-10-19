@@ -1,14 +1,16 @@
 from rest_framework import serializers
-from .models import Order, OrderItem
+from .models import Order, OrderStatus
 
-class OrderItemSerializer(serializers.ModelSerializer):
+
+class OrderStatusSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OrderItem
-        fields = ['product_name','quality','price']
+        model = OrderStatus
+        fields = ['name']
+
 
 class OrderSerializer(serializers.ModelSerializer):
     customer_name = serializers.CharField(source='customer.username', read_only=True)
-    order_status = serializers.StringRelatedField()  # displays the status name
+    order_status = OrderStatusSerializer(read_only=True)
 
     class Meta:
         model = Order
