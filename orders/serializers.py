@@ -7,8 +7,17 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ['product_name','quality','price']
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, read_only=True)
+    customer_name = serializers.CharField(source='customer.username', read_only=True)
+    order_status = serializers.StringRelatedField()  # displays the status name
 
     class Meta:
         model = Order
-        fields = ['id','date','total_price','items']
+        fields = [
+            'id',
+            'customer_name',
+            'name',
+            'quantity',
+            'price',
+            'order_status',
+            'order_date'
+        ]

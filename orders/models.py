@@ -1,6 +1,10 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from home.models import Table  # if orders are linked to restaurant tables
+from home.models import MenuItem 
+from django.conf import settings
+
 
 class ActiveOrderManager(models.Manager):
     def get_active_orders(self):

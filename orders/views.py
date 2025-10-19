@@ -4,7 +4,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
 from .models import Coupon
-
+from rest_framework import generics
+from .models import Order
+from .serializers import OrderSerializer
 # Create your views here.
 
 class CouponValidationView(APIView):
@@ -39,3 +41,7 @@ class CouponValidationView(APIView):
             'discount_percentage':float(coupon.discount_percentage),
             'message':f'Coupon "{coupon.code}" is valid for {coupon.discount_percentage}% off!'
         },status=status.HTTP_200_OK)
+class OrderDetailAPIView(generics.RetrieveAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    lookup_field = 'id'  # URL will include the order ID
