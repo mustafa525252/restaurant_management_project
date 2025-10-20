@@ -4,6 +4,10 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django.db import DatabaseError, IntegrityError
+from django.core.mail import BadHeaderError, SMTPException
+import logging
+
 from .models import MenuCategory, Table, Order, ContactFormSubmission
 from .serializers import (
     MenuCategorySerializer,
@@ -12,6 +16,9 @@ from .serializers import (
     ContactFormSubmissionSerializer
 )
 from .utils import send_order_confirmation_email
+
+# Setup logger
+logger = logging.getLogger(__name__)
 
 
 # -----------------------------
@@ -50,57 +57,78 @@ class CreateOrderAPIView(APIView):
     """
     def post(self, request):
         serializer = OrderSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                order = serializer.save()
 
-                # Safely fetch customer details
-                order_id = order.id
-                customer_email = getattr(order.customer, "email", None)
-                customer_name = getattr(order.customer, "name", "Customer")
-                order_items = [item.name for item in getattr(order, "items", []).all()]
-                total_amount = getattr(order, "total_amount", 0)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-                if not customer_email:
-                    return Response(
-                        {"error": "Customer email not found. Cannot send confirmation."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+        try:
+            # Save the order safely
+            order = serializer.save()
+        except IntegrityError as e:
+            logger.error(f"IntegrityError while saving order: {e}")
+            return Response(
+                {"error": "Invalid data. Could not save order."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except DatabaseError as e:
+            logger.error(f"Database error during order creation: {e}")
+            return Response(
+                {"error": "A database error occurred. Please try again later."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        except Exception as e:
+            logger.exception("Unexpected error while saving order")
+            return Response(
+                {"error": f"Unexpected error while creating order: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-                # Attempt to send email
-                success = False
-                try:
-                    success = send_order_confirmation_email(
-                        order_id=order_id,
-                        customer_email=customer_email,
-                        customer_name=customer_name,
-                        order_items=order_items,
-                        total_amount=total_amount
-                    )
-                except Exception as e:
-                    return Response(
-                        {"warning": f"Order created, but email failed due to: {str(e)}"},
-                        status=status.HTTP_202_ACCEPTED
-                    )
+        # Extract order details
+        order_id = order.id
+        customer_email = getattr(order.customer, "email", None)
+        customer_name = getattr(order.customer, "name", "Customer")
+        order_items = [item.name for item in getattr(order, "items", []).all()]
+        total_amount = getattr(order, "total_amount", 0)
 
-                if success:
-                    return Response(
-                        {"message": "Order created successfully. Confirmation email sent."},
-                        status=status.HTTP_201_CREATED
-                    )
-                else:
-                    return Response(
-                        {"warning": "Order created, but email could not be sent."},
-                        status=status.HTTP_202_ACCEPTED
-                    )
+        if not customer_email:
+            return Response(
+                {"error": "Customer email not found. Cannot send confirmation."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-            except Exception as e:
-                return Response(
-                    {"error": f"Failed to create order: {str(e)}"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+        # Attempt to send email
+        try:
+            success = send_order_confirmation_email(
+                order_id=order_id,
+                customer_email=customer_email,
+                customer_name=customer_name,
+                order_items=order_items,
+                total_amount=total_amount
+            )
+        except (SMTPException, BadHeaderError) as e:
+            logger.warning(f"Email sending failed for order {order_id}: {e}")
+            return Response(
+                {"warning": f"Order created, but email failed to send due to: {str(e)}"},
+                status=status.HTTP_202_ACCEPTED
+            )
+        except Exception as e:
+            logger.exception("Unexpected error while sending email")
+            return Response(
+                {"warning": f"Order created, but email failed unexpectedly: {str(e)}"},
+                status=status.HTTP_202_ACCEPTED
+            )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Success response
+        if success:
+            return Response(
+                {"message": "Order created successfully. Confirmation email sent."},
+                status=status.HTTP_201_CREATED
+            )
+        else:
+            return Response(
+                {"warning": "Order created, but confirmation email could not be sent."},
+                status=status.HTTP_202_ACCEPTED
+            )
 
 
 # -----------------------------
