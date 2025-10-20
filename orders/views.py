@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions
 from .models import Order
 from .serializers import OrderSerializer
-
+from home.utils import send_email 
 
 class OrderDetailAPIView(generics.RetrieveAPIView):
     """

@@ -1,12 +1,22 @@
 import secrets
 import string
-from django.db import models
-from django.db.models import Sum  # ✅ You forgot to import this
-from orders.models import Order  # OK, but can be lazy imported if circular imports occur
+import logging
+from django.db.models import Sum
+from django.core.mail import send_mail, BadHeaderError
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.conf import settings
+from smtplib import SMTPException
+
+logger = logging.getLogger(__name__)
 
 COUPON_CHARACTERS = string.ascii_uppercase + string.digits
+ORDER_ID_CHARACTERS = string.ascii_uppercase + string.digits
 
 
+# ----------------------------------------------------------------------
+# 1. Generate a Unique Coupon Code
+# ----------------------------------------------------------------------
 def generate_unique_coupon_code(length=10):
     """
     Generate a random alphanumeric coupon code of the given length.
@@ -14,16 +24,23 @@ def generate_unique_coupon_code(length=10):
     return ''.join(secrets.choice(COUPON_CHARACTERS) for _ in range(length))
 
 
+# ----------------------------------------------------------------------
+# 2. Calculate Daily Sales Total
+# ----------------------------------------------------------------------
 def get_daily_sales_total(date):
     """
     Calculate the total sales for a given date based on Order records.
     """
-    # ✅ Your Order model uses 'order_date', not 'created_at'
+    from orders.models import Order  # ✅ Lazy import to avoid circular dependency
+
     orders = Order.objects.filter(order_date__date=date)
     total = orders.aggregate(total_sum=Sum('price'))['total_sum']
     return total or 0
 
 
+# ----------------------------------------------------------------------
+# 3. Generate Unique Order ID
+# ----------------------------------------------------------------------
 def generate_unique_order_id(model, field_name="order_id", length=8):
     """
     Generate a unique alphanumeric ID for an order.
@@ -36,9 +53,56 @@ def generate_unique_order_id(model, field_name="order_id", length=8):
     Returns:
         str: A unique alphanumeric string.
     """
-    characters = string.ascii_uppercase + string.digits  # A-Z, 0-9
-
     while True:
-        new_id = ''.join(secrets.choice(characters) for _ in range(length))
+        new_id = ''.join(secrets.choice(ORDER_ID_CHARACTERS) for _ in range(length))
         if not model.objects.filter(**{field_name: new_id}).exists():
             return new_id
+
+
+# ----------------------------------------------------------------------
+# 4. Reusable Email Utility
+# ----------------------------------------------------------------------
+def send_email(recipient_email, subject, message_body, from_email=None):
+    """
+    Reusable utility to send emails using Django's send_mail function.
+
+    Args:
+        recipient_email (str): Recipient email address.
+        subject (str): Email subject line.
+        message_body (str): Plain text email content.
+        from_email (str, optional): Sender email address. Defaults to settings.DEFAULT_FROM_EMAIL.
+
+    Returns:
+        bool: True if email sent successfully, False otherwise.
+    """
+    if not recipient_email:
+        logger.error("No recipient email provided.")
+        return False
+
+    try:
+        validate_email(recipient_email)
+    except ValidationError:
+        logger.error(f"Invalid recipient email address: {recipient_email}")
+        return False
+
+    from_email = from_email or getattr(settings, "DEFAULT_FROM_EMAIL", None)
+
+    try:
+        send_mail(
+            subject=subject,
+            message=message_body,
+            from_email=from_email,
+            recipient_list=[recipient_email],
+            fail_silently=False,
+        )
+        logger.info(f"Email sent successfully to {recipient_email}")
+        return True
+
+    except BadHeaderError:
+        logger.error("Invalid header found while sending email.")
+    except SMTPException as e:
+        logger.error(f"SMTP error occurred while sending email: {e}")
+    except Exception as e:
+        logger.exception(f"Unexpected error occurred while sending email: {e}")
+
+    return False
