@@ -35,12 +35,19 @@ class Order(models.Model):
     name = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    order_id = models.CharField(max_length=12, unique=True, editable=False)  # 👈 new field
 
     objects = models.Manager()
     active_orders = ActiveOrderManager()
-    
+
+    def save(self, *args, **kwargs):
+        from .utils import generate_unique_order_id  # local import to avoid circular imports
+        if not self.order_id:
+            self.order_id = generate_unique_order_id(Order, field_name="order_id", length=10)
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"Order #{self.id} - {self.order_status.name if self.order_status else 'No Status'}"
+        return f"Order {self.order_id} - {self.order_status.name if self.order_status else 'No Status'}"
 
     class Meta:
         verbose_name = "Order"
