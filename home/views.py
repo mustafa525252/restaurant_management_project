@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import generics
+from rest_framework import generics , status
 from rest_framework.generics import ListAPIView
 from .models import MenuCategory,Table,Order
 from .serializers import MenuCategorySerializer, TableSerializer
@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import OrderSerializer
 from .utils import send_order_confirmation_email
+from .serializers import ContactFormSubmissionSerializer
+from .models import ContactFormSubmission
 
 # Create your views here.
 
@@ -60,3 +62,18 @@ class CreateOrderAPIView(APIView):
                 return Response({"message": "Order created, but email failed to send."})
         
         return Response(serializer.errors, status=400)
+    
+    
+class ContactFormSubmissionView(generics.CreateAPIView):
+    queryset = ContactFormSubmission.objects.all()
+    serializer_class = ContactFormSubmissionSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Thank you for contacting us! We’ve received your message."},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

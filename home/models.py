@@ -22,3 +22,17 @@ class Table(models.Model):
 
     def __str__(self):
         return f"Table {self.table_number} - Capacity: {self.capacity}"
+    
+class ContactFormSubmission(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Contact Form Submission"
+        verbose_name_plural = "Contact Form Submissions"
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return f"{self.name} - {self.email}"
