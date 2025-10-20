@@ -1,29 +1,35 @@
 from django.shortcuts import render
-from rest_framework import generics , status
+from rest_framework import generics, status
 from rest_framework.generics import ListAPIView
-from .models import MenuCategory,Table,Order
-from .serializers import MenuCategorySerializer, TableSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import OrderSerializer
+
+from .models import MenuCategory, Table, Order, ContactFormSubmission
+from .serializers import (
+    MenuCategorySerializer,
+    TableSerializer,
+    OrderSerializer,
+    ContactFormSubmissionSerializer
+)
 from .utils import send_order_confirmation_email
-from .serializers import ContactFormSubmissionSerializer
-from .models import ContactFormSubmission
 
-# Create your views here.
 
+# -----------------------------
+# Menu Categories
+# -----------------------------
 class MenuCategoryListView(ListAPIView):
     queryset = MenuCategory.objects.all()
     serializer_class = MenuCategorySerializer
 
+
+# -----------------------------
+# Tables
+# -----------------------------
 class TableDetailAPIView(generics.RetrieveAPIView):
     queryset = Table.objects.all()
     serializer_class = TableSerializer
     lookup_field = 'pk'
-    
-class AvailableTablesAPIView(generics.ListAPIView):
-    queryset = Table.objects.filter(is_available=True)
-    serializer_class = TableSerializer
+
 
 class AvailableTablesAPIView(generics.ListAPIView):
     """
@@ -33,37 +39,73 @@ class AvailableTablesAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         return Table.objects.filter(is_available=True)
-    
+
+
+# -----------------------------
+# Orders
+# -----------------------------
 class CreateOrderAPIView(APIView):
+    """
+    Handles order creation and sends a confirmation email upon success.
+    """
     def post(self, request):
         serializer = OrderSerializer(data=request.data)
         if serializer.is_valid():
-            order = serializer.save()  # Saves the order to DB
+            try:
+                order = serializer.save()
 
-            # Prepare order details for email
-            order_id = order.id
-            customer_email = order.customer.email
-            customer_name = order.customer.name
-            order_items = [item.name for item in order.items.all()]
-            total_amount = order.total_amount
+                # Safely fetch customer details
+                order_id = order.id
+                customer_email = getattr(order.customer, "email", None)
+                customer_name = getattr(order.customer, "name", "Customer")
+                order_items = [item.name for item in getattr(order, "items", []).all()]
+                total_amount = getattr(order, "total_amount", 0)
 
-            # Call the reusable email function
-            success = send_order_confirmation_email(
-                order_id=order_id,
-                customer_email=customer_email,
-                customer_name=customer_name,
-                order_items=order_items,
-                total_amount=total_amount
-            )
+                if not customer_email:
+                    return Response(
+                        {"error": "Customer email not found. Cannot send confirmation."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
 
-            if success:
-                return Response({"message": "Order created and email sent successfully."})
-            else:
-                return Response({"message": "Order created, but email failed to send."})
-        
-        return Response(serializer.errors, status=400)
-    
-    
+                # Attempt to send email
+                success = False
+                try:
+                    success = send_order_confirmation_email(
+                        order_id=order_id,
+                        customer_email=customer_email,
+                        customer_name=customer_name,
+                        order_items=order_items,
+                        total_amount=total_amount
+                    )
+                except Exception as e:
+                    return Response(
+                        {"warning": f"Order created, but email failed due to: {str(e)}"},
+                        status=status.HTTP_202_ACCEPTED
+                    )
+
+                if success:
+                    return Response(
+                        {"message": "Order created successfully. Confirmation email sent."},
+                        status=status.HTTP_201_CREATED
+                    )
+                else:
+                    return Response(
+                        {"warning": "Order created, but email could not be sent."},
+                        status=status.HTTP_202_ACCEPTED
+                    )
+
+            except Exception as e:
+                return Response(
+                    {"error": f"Failed to create order: {str(e)}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# -----------------------------
+# Contact Form Submission
+# -----------------------------
 class ContactFormSubmissionView(generics.CreateAPIView):
     queryset = ContactFormSubmission.objects.all()
     serializer_class = ContactFormSubmissionSerializer
