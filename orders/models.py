@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.conf import settings
+from decimal import Decimal
+from home.models import MenuItem  # 👈 assuming MenuItem exists in home/models.py
+
 
 class ActiveOrderManager(models.Manager):
     def get_active_orders(self):
@@ -35,7 +38,7 @@ class Order(models.Model):
     name = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    order_id = models.CharField(max_length=12, unique=True, editable=False)  # 👈 new field
+    order_id = models.CharField(max_length=12, unique=True, editable=False)
 
     objects = models.Manager()
     active_orders = ActiveOrderManager()
@@ -53,6 +56,35 @@ class Order(models.Model):
         verbose_name = "Order"
         verbose_name_plural = "Orders"
         ordering = ['-order_date']
+
+    # 🧮 Method to calculate total cost
+    def calculate_total(self):
+        """
+        Calculate total cost of the order by summing (price * quantity) for each order item.
+        """
+        total = Decimal('0.00')
+        for item in self.items.all():  # related_name='items' from OrderItem
+            total += item.price * item.quantity
+        return total
+
+
+# 🧾 New Model: OrderItem
+class OrderItem(models.Model):
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name='items'
+    )
+    menu_item = models.ForeignKey(
+        MenuItem, on_delete=models.CASCADE, related_name='order_items'
+    )
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.quantity} × {self.menu_item.name} (Order {self.order.order_id})"
+
+    class Meta:
+        verbose_name = "Order Item"
+        verbose_name_plural = "Order Items"
 
 
 class Coupon(models.Model):
