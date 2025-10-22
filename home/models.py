@@ -65,9 +65,12 @@ class MenuItem(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    ingredients = models.ManyToManyField(Ingredient, related_name="menu_items", blank=True)
+    ingredients = models.ManyToManyField('Ingredient', related_name="menu_items", blank=True)
 
-    objects = MenuItemManager()  # attach custom manager
+    # 🆕 New field
+    is_featured = models.BooleanField(default=False, help_text="Mark as featured dish")
+
+    objects = MenuItemManager()  # your custom manager
 
     def __str__(self):
         return self.name

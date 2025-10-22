@@ -17,6 +17,7 @@ from .serializers import (
     IngredientSerializer
 )
 from .utils import send_order_confirmation_email
+from .serializers import MenuItemSerializer
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -165,3 +166,12 @@ class MenuItemIngredientsView(generics.RetrieveAPIView):
         ingredients = menu_item.ingredients.all()
         serializer = IngredientSerializer(ingredients, many=True)
         return Response(serializer.data)
+
+class FeaturedMenuItemsView(generics.ListAPIView):
+    """
+    API endpoint to list all featured menu items.
+    """
+    serializer_class = MenuItemSerializer
+
+    def get_queryset(self):
+        return MenuItem.objects.filter(is_featured=True)
