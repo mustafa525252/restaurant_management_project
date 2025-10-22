@@ -68,3 +68,19 @@ class DailySpecial(models.Model):
             return None
         # Randomly pick one using order_by('?')
         return specials.order_by('?').first()
+    
+class Ingredient(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class MenuItem(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    ingredients = models.ManyToManyField(Ingredient, related_name="menu_items", blank=True)
+
+    def __str__(self):
+        return self.name

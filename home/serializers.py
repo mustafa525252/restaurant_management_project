@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import MenuCategory,MenuItemSerializer,Table
-from .models import ContactFormSubmission
+from .models import ContactFormSubmission, Ingredient
 
 class MenuCategorySerializer(serializers.ModelSerializer):
     # Serializer for MenuCategory model
@@ -24,3 +24,8 @@ class ContactFormSubmissionSerializer(serializers.ModelSerializer):
         model = ContactFormSubmission
         fields = ['id', 'name', 'email', 'message', 'submitted_at']
         read_only_fields = ['id', 'submitted_at']
+        
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = ['id', 'name']

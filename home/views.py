@@ -3,17 +3,18 @@ from rest_framework import generics, status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from .models import MenuItem
 from django.db import DatabaseError, IntegrityError
 from django.core.mail import BadHeaderError, SMTPException
 import logging
-
+from rest_framework.exceptions import NotFound
 from .models import MenuCategory, Table, Order, ContactFormSubmission
 from .serializers import (
     MenuCategorySerializer,
     TableSerializer,
     OrderSerializer,
-    ContactFormSubmissionSerializer
+    ContactFormSubmissionSerializer,
+    IngredientSerializer
 )
 from .utils import send_order_confirmation_email
 
@@ -147,3 +148,20 @@ class ContactFormSubmissionView(generics.CreateAPIView):
                 status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class MenuItemIngredientsView(generics.RetrieveAPIView):
+    """
+    API endpoint to get all ingredients for a specific MenuItem.
+    """
+    queryset = MenuItem.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        try:
+            menu_item = MenuItem.objects.get(pk=pk)
+        except MenuItem.DoesNotExist:
+            raise NotFound("Menu item not found.")
+
+        ingredients = menu_item.ingredients.all()
+        serializer = IngredientSerializer(ingredients, many=True)
+        return Response(serializer.data)
