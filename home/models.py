@@ -1,4 +1,5 @@
 from django.db import models
+import random
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=255)
@@ -44,3 +45,26 @@ class MenuItem(models.Model):
 
     def __str__(self):
         return self.name
+    
+class DailySpecial(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    is_available = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def get_random_special():
+        """
+        Returns a random available DailySpecial instance.
+        If no specials exist, returns None.
+        """
+        specials = DailySpecial.objects.filter(is_available=True)
+        count = specials.count()
+        if count == 0:
+            return None
+        # Randomly pick one using order_by('?')
+        return specials.order_by('?').first()
