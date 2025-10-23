@@ -26,22 +26,28 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 # ✅ Serializer for Updating Order Status
-class OrderStatusUpdateSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(write_only=True)
+class OrderStatusUpdateSerializer(serializers.Serializer):
+    order_id = serializers.CharField()
+    status = serializers.CharField()
 
-    class Meta:
-        model = Order
-        fields = ['status']
-
-    def validate_status(self, value):
-        """Ensure the provided status exists in the database."""
+    def validate(self, data):
+        # Validate order exists
         try:
-            status_obj = OrderStatus.objects.get(name__iexact=value)
+            order = Order.objects.get(order_id=data['order_id'])
+        except Order.DoesNotExist:
+            raise serializers.ValidationError({"order_id": "Invalid order ID."})
+
+        # Validate status
+        try:
+            status_obj = OrderStatus.objects.get(name__iexact=data['status'])
         except OrderStatus.DoesNotExist:
-            raise serializers.ValidationError(f"'{value}' is not a valid order status.")
-        return status_obj
+            raise serializers.ValidationError({"status": "Invalid status name."})
+
+        data['order'] = order
+        data['status_obj'] = status_obj
+        return data
 
     def update(self, instance, validated_data):
-        instance.order_status = validated_data['status']
+        instance.order_status = validated_data['status_obj']
         instance.save()
         return instance

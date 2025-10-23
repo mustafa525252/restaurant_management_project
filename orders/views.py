@@ -62,17 +62,42 @@ class CancelOrderAPIView(APIView):
             )
             
 class UpdateOrderStatusView(APIView):
+    """
+    PUT /api/orders/<order_id>/update-status/
+    Body: {"status": "processing"}
+    """
+
     def put(self, request, order_id):
+        # 1️⃣ Check if order exists
         try:
             order = Order.objects.get(order_id=order_id)
         except Order.DoesNotExist:
-            return Response({"error": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Order not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-        serializer = OrderStatusUpdateSerializer(order, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                "message": f"Order {order.order_id} status updated to '{order.order_status.name}'."
-            }, status=status.HTTP_200_OK)
+        # 2️⃣ Validate the new status
+        new_status_name = request.data.get("status")
+        if not new_status_name:
+            return Response(
+                {"error": "Status field is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            status_obj = OrderStatus.objects.get(name__iexact=new_status_name)
+        except OrderStatus.DoesNotExist:
+            return Response(
+                {"error": f"Invalid status '{new_status_name}'. Allowed statuses: {[s.name for s in OrderStatus.objects.all()]}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 3️⃣ Update the order
+        order.order_status = status_obj
+        order.save()
+
+        return Response(
+            {"message": f"Order {order.order_id} status updated to '{status_obj.name}'."},
+            status=status.HTTP_200_OK
+        )
