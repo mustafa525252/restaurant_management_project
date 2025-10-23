@@ -5,6 +5,7 @@ from home.utils import send_email
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 
 class OrderDetailAPIView(generics.RetrieveAPIView):
     """
@@ -101,3 +102,26 @@ class UpdateOrderStatusView(APIView):
             {"message": f"Order {order.order_id} status updated to '{status_obj.name}'."},
             status=status.HTTP_200_OK
         )
+        
+
+@api_view(['GET'])
+def get_order_status(request, order_id):
+    """
+    Retrieve the current status of an order given its order ID.
+    Returns a JSON response with the order ID and status.
+    """
+    try:
+        order = Order.objects.get(order_id=order_id)
+    except Order.DoesNotExist:
+        return Response(
+            {"error": "Order not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    return Response(
+        {
+            "order_id": order.order_id,
+            "status": order.order_status.name if order.order_status else "No Status"
+        },
+        status=status.HTTP_200_OK
+    )
