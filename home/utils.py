@@ -2,6 +2,7 @@ from django.core.mail import send_mail, BadHeaderError
 from django.core.exceptions import ImproperlyConfigured
 from datetime import datetime, time
 import logging
+from home.models import MenuItem, Cuisine
 
 
 def send_order_confirmation_email(order_id, customer_email, customer_name, order_items, total_amount):
@@ -66,3 +67,18 @@ def is_restaurant_open():
 
     open_time, close_time = hours
     return open_time <= current_time <= close_time
+
+def get_distinct_cuisines():
+    """
+    Retrieve a list of all unique cuisine names currently available across menu items.
+    
+    This function uses Django ORM to efficiently fetch distinct cuisine names
+    linked to MenuItem objects. It’s useful for dynamic filters or displaying
+    available cuisines on the website.
+    """
+    cuisines = (
+        MenuItem.objects
+        .values_list('cuisine__name', flat=True)
+        .distinct()
+    )
+    return list(cuisines)
