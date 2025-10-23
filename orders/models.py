@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.conf import settings
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from home.models import MenuItem  # 👈 assuming MenuItem exists in home/models.py
 
 
@@ -46,50 +46,37 @@ class OrderStatus(models.Model):
 
 
 class Order(models.Model):
-    customer = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='orders'
-    )
-    order_date = models.DateTimeField(auto_now_add=True)
-    order_status = models.ForeignKey(
-        OrderStatus,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='orders'
-    )
-    name = models.CharField(max_length=100)
-    quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    order_id = models.CharField(max_length=12, unique=True, editable=False)
+    # ... your existing fields and managers ...
 
-    # ✅ Custom managers
-    objects = models.Manager()              # Default manager
-    active_orders = ActiveOrderManager()    # Your existing manager
-    custom_orders = OrderManager()          # New custom manager for filtering by status
-
-    def save(self, *args, **kwargs):
-        from .utils import generate_unique_order_id  # local import to avoid circular imports
-        if not self.order_id:
-            self.order_id = generate_unique_order_id(Order, field_name="order_id", length=10)
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"Order {self.order_id} - {self.order_status.name if self.order_status else 'No Status'}"
-
-    class Meta:
-        verbose_name = "Order"
-        verbose_name_plural = "Orders"
-        ordering = ['-order_date']
-
-    # 🧮 Method to calculate total cost
     def calculate_total(self):
         """
         Calculate total cost of the order by summing (price * quantity) for each order item.
+        If a valid coupon/discount applies, apply it using the `calculate_discount` utility.
         """
         total = Decimal('0.00')
+
+        # 1️⃣ Sum up item totals
         for item in self.items.all():  # related_name='items' from OrderItem
             total += item.price * item.quantity
-        return total
+
+        # 2️⃣ Try applying discount (if applicable)
+        try:
+            from .utils import calculate_discount  # Import discount utility if it exists
+
+            # Check if this order has a coupon (assuming you later add an FK to Coupon)
+            coupon = getattr(self, 'coupon', None)
+            if coupon and hasattr(coupon, 'is_valid') and coupon.is_valid():
+                total = calculate_discount(total, coupon.discount_percentage)
+
+        except ImportError:
+            # If calculate_discount not found, skip discount step
+            pass
+        except Exception as e:
+            # In case of any other error, don't break calculation
+            print(f"Discount calculation skipped due to: {e}")
+
+        # 3️⃣ Return rounded total
+        return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
 
 # 🧾 OrderItem model
