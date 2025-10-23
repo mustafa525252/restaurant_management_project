@@ -3,10 +3,10 @@ from .models import MenuCategory,MenuItemSerializer,Table
 from .models import ContactFormSubmission, Ingredient
 
 class MenuCategorySerializer(serializers.ModelSerializer):
-    # Serializer for MenuCategory model
     class Meta:
         model = MenuCategory
-        fields = ['id','name']
+        fields = ['id', 'name']
+
 
 class MenuItemSerializer(serializers.ModelSerializer):
     category = serializers.StringRelatedField()

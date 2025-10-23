@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics, status
+from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -175,3 +176,21 @@ class FeaturedMenuItemsView(generics.ListAPIView):
 
     def get_queryset(self):
         return MenuItem.objects.filter(is_featured=True)
+    
+class MenuCategoryListCreateView(generics.ListCreateAPIView):
+    """
+    GET → List all categories
+    POST → Create a new category
+    """
+    queryset = MenuCategory.objects.all()
+    serializer_class = MenuCategorySerializer
+
+
+class MenuCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    GET → Retrieve a category
+    PUT/PATCH → Update a category
+    DELETE → Delete a category
+    """
+    queryset = MenuCategory.objects.all()
+    serializer_class = MenuCategorySerializer

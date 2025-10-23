@@ -1,9 +1,21 @@
-from .views import MenuCategoryListView, TableDetailAPIView,AvailableTablesAPIView,ContactFormSubmissionView, MenuItemIngredientsView, FeaturedMenuItemsView
 from django.urls import path
+from .views import (
+    MenuCategoryListCreateView,
+    MenuCategoryDetailView,
+    TableDetailAPIView,
+    AvailableTablesAPIView,
+    ContactFormSubmissionView,
+    MenuItemIngredientsView,
+    FeaturedMenuItemsView
+)
 
 urlpatterns = [
-    path('menu-categories/',MenuCategoryListView.as_view(),name='menu-categories'),
-    path('api/tables/<int:pk>/', TableDetailAPIView.as_view(),name='table-detail'),
+    # ✅ Menu Category API
+    path('api/menu-categories/', MenuCategoryListCreateView.as_view(), name='menu-category-list-create'),
+    path('api/menu-categories/<int:pk>/', MenuCategoryDetailView.as_view(), name='menu-category-detail'),
+
+    # Existing routes
+    path('api/tables/<int:pk>/', TableDetailAPIView.as_view(), name='table-detail'),
     path('api/tables/available/', AvailableTablesAPIView.as_view(), name='available_tables_api'),
     path('api/contact/', ContactFormSubmissionView.as_view(), name='contact-form-submit'),
     path('api/menu-items/<int:pk>/ingredients/', MenuItemIngredientsView.as_view(), name='menuitem-ingredients'),
