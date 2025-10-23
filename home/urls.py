@@ -6,7 +6,8 @@ from .views import (
     AvailableTablesAPIView,
     ContactFormSubmissionView,
     MenuItemIngredientsView,
-    FeaturedMenuItemsView
+    FeaturedMenuItemsView,
+    DailySpecialListView
 )
 
 urlpatterns = [
@@ -20,4 +21,5 @@ urlpatterns = [
     path('api/contact/', ContactFormSubmissionView.as_view(), name='contact-form-submit'),
     path('api/menu-items/<int:pk>/ingredients/', MenuItemIngredientsView.as_view(), name='menuitem-ingredients'),
     path('api/menu-items/featured/', FeaturedMenuItemsView.as_view(), name='featured-menu-items'),
+    path('api/daily-specials/', DailySpecialListView.as_view(), name='daily-specials'),
 ]

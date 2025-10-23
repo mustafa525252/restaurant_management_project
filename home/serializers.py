@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import MenuCategory,MenuItemSerializer,Table
 from .models import ContactFormSubmission, Ingredient
+from .models import DailySpecial
 
 class MenuCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,3 +30,8 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ['id', 'name']
+        
+class DailySpecialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DailySpecial
+        fields = ['id', 'name', 'description', 'price', 'is_available', 'created_at']

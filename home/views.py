@@ -19,6 +19,8 @@ from .serializers import (
 )
 from .utils import send_order_confirmation_email
 from .serializers import MenuItemSerializer
+from .models import DailySpecial
+from .serializers import DailySpecialSerializer
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -194,3 +196,12 @@ class MenuCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = MenuCategory.objects.all()
     serializer_class = MenuCategorySerializer
+    
+class DailySpecialListView(APIView):
+    """
+    Retrieve all available daily specials.
+    """
+    def get(self, request):
+        specials = DailySpecial.objects.filter(is_available=True)
+        serializer = DailySpecialSerializer(specials, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
