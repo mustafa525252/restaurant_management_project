@@ -6,6 +6,28 @@ from decimal import Decimal
 from home.models import MenuItem  # 👈 assuming MenuItem exists in home/models.py
 
 
+# 🧠 Custom Manager for querying by status
+class OrderManager(models.Manager):
+    def with_status(self, status_name):
+        """
+        Return all orders that have the given status name.
+        Usage: Order.custom_orders.with_status('pending')
+        """
+        return self.filter(order_status__name__iexact=status_name)
+
+    def pending(self):
+        """Shortcut for pending orders."""
+        return self.with_status('pending')
+
+    def processing(self):
+        """Shortcut for processing orders."""
+        return self.with_status('processing')
+
+    def completed(self):
+        """Shortcut for completed orders."""
+        return self.with_status('completed')
+
+
 class ActiveOrderManager(models.Manager):
     def get_active_orders(self):
         return self.filter(order_status__name__in=['pending', 'processing'])
@@ -40,8 +62,10 @@ class Order(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     order_id = models.CharField(max_length=12, unique=True, editable=False)
 
-    objects = models.Manager()
-    active_orders = ActiveOrderManager()
+    # ✅ Custom managers
+    objects = models.Manager()              # Default manager
+    active_orders = ActiveOrderManager()    # Your existing manager
+    custom_orders = OrderManager()          # New custom manager for filtering by status
 
     def save(self, *args, **kwargs):
         from .utils import generate_unique_order_id  # local import to avoid circular imports
@@ -68,7 +92,7 @@ class Order(models.Model):
         return total
 
 
-# 🧾 New Model: OrderItem
+# 🧾 OrderItem model
 class OrderItem(models.Model):
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name='items'
