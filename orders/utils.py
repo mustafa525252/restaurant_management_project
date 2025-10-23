@@ -106,3 +106,44 @@ def send_email(recipient_email, subject, message_body, from_email=None):
         logger.exception(f"Unexpected error occurred while sending email: {e}")
 
     return False
+
+
+# ----------------------------------------------------------------------
+# 5. Update Order Status Utility
+# ----------------------------------------------------------------------
+def update_order_status(order_id, new_status_name):
+    """
+    Update the status of an order given its order ID and new status name.
+
+    Args:
+        order_id (str): The unique ID of the order.
+        new_status_name (str): The new status name (e.g., 'Pending', 'Processing', 'Completed').
+
+    Returns:
+        dict: A dictionary with success status and a message.
+    """
+    from .models import Order, OrderStatus  # Lazy import to avoid circular imports
+
+    try:
+        # Retrieve the order
+        order = Order.objects.get(order_id=order_id)
+    except Order.DoesNotExist:
+        logger.warning(f"Order with ID {order_id} not found.")
+        return {"success": False, "message": f"Order with ID {order_id} not found."}
+
+    # Normalize and find or create the status
+    new_status_name = new_status_name.strip().capitalize()
+    order_status, _ = OrderStatus.objects.get_or_create(name=new_status_name)
+
+    old_status = order.order_status.name if order.order_status else "None"
+    order.order_status = order_status
+    order.save()
+
+    logger.info(
+        f"✅ Order {order_id} status updated from '{old_status}' to '{new_status_name}'."
+    )
+
+    return {
+        "success": True,
+        "message": f"Order {order_id} status updated to '{new_status_name}'."
+    }
