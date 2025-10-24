@@ -3,6 +3,8 @@ from django.db.models import Sum
 import random
 from django.contrib.auth.models import User
 from datetime import datetime
+from datetime import timedelta
+from django.db.models import Q
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=255)
@@ -122,3 +124,44 @@ class UserReview(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.menu_item.name} ({self.rating}/5)"
+    
+
+class Reservation(models.Model):
+    customer_name = models.CharField(max_length=100)
+    table_number = models.IntegerField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+
+    class Meta:
+        ordering = ['start_time']
+
+    def __str__(self):
+        return f"{self.customer_name} - Table {self.table_number}"
+
+    @classmethod
+    def get_available_slots(cls, start_datetime, end_datetime, table_number, slot_duration=timedelta(hours=1)):
+        """
+        Returns a list of available time slots for a given table within a time range.
+        """
+        # Fetch overlapping reservations
+        overlapping_reservations = cls.objects.filter(
+            table_number=table_number,
+            start_time__lt=end_datetime,
+            end_time__gt=start_datetime
+        ).order_by('start_time')
+
+        available_slots = []
+        current_time = start_datetime
+
+        # Check for gaps between reservations
+        for reservation in overlapping_reservations:
+            if current_time + slot_duration <= reservation.start_time:
+                available_slots.append((current_time, reservation.start_time))
+            if reservation.end_time > current_time:
+                current_time = reservation.end_time
+
+        # Add final slot if available
+        if current_time + slot_duration <= end_datetime:
+            available_slots.append((current_time, end_datetime))
+
+        return available_slots
