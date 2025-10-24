@@ -1,7 +1,5 @@
 from rest_framework import serializers
-from .models import MenuCategory,MenuItemSerializer,Table
-from .models import ContactFormSubmission, Ingredient
-from .models import DailySpecial
+from .models import MenuCategory, MenuItemSerializer, Table, ContactFormSubmission, Ingredient, Restaurant, DailySpecial
 
 class MenuCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,3 +33,8 @@ class DailySpecialSerializer(serializers.ModelSerializer):
     class Meta:
         model = DailySpecial
         fields = ['id', 'name', 'description', 'price', 'is_available', 'created_at']
+        
+class RestaurantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Restaurant
+        fields = '__all__'

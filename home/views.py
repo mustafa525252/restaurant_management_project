@@ -4,23 +4,22 @@ from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import MenuItem
 from django.db import DatabaseError, IntegrityError
 from django.core.mail import BadHeaderError, SMTPException
 import logging
 from rest_framework.exceptions import NotFound
-from .models import MenuCategory, Table, Order, ContactFormSubmission
+from .models import MenuCategory, Table, Order, ContactFormSubmission, Restaurant, MenuItem, DailySpecial
 from .serializers import (
     MenuCategorySerializer,
     TableSerializer,
     OrderSerializer,
     ContactFormSubmissionSerializer,
-    IngredientSerializer
+    IngredientSerializer,
+    RestaurantSerializer,
+    MenuItemSerializer,
+    DailySpecialSerializer
 )
 from .utils import send_order_confirmation_email
-from .serializers import MenuItemSerializer
-from .models import DailySpecial
-from .serializers import DailySpecialSerializer
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -205,3 +204,10 @@ class DailySpecialListView(APIView):
         specials = DailySpecial.objects.filter(is_available=True)
         serializer = DailySpecialSerializer(specials, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class RestaurantListAPIView(generics.ListAPIView):
+    """
+    API endpoint to return all restaurant information.
+    """
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantSerializer
