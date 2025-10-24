@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
@@ -8,7 +8,17 @@ from django.db import DatabaseError, IntegrityError
 from django.core.mail import BadHeaderError, SMTPException
 import logging
 from rest_framework.exceptions import NotFound
-from .models import MenuCategory, Table, Order, ContactFormSubmission, Restaurant, MenuItem, DailySpecial
+from .models import (
+    MenuCategory, 
+    Table, 
+    Order,
+    ContactFormSubmission,
+    Restaurant,
+    MenuItem,
+    DailySpecial,
+    UserReview
+)
+
 from .serializers import (
     MenuCategorySerializer,
     TableSerializer,
@@ -17,7 +27,8 @@ from .serializers import (
     IngredientSerializer,
     RestaurantSerializer,
     MenuItemSerializer,
-    DailySpecialSerializer
+    DailySpecialSerializer,
+    UserReviewSerializer
 )
 from .utils import send_order_confirmation_email
 
@@ -211,3 +222,22 @@ class RestaurantListAPIView(generics.ListAPIView):
     """
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
+    
+# 1️⃣ Create a new review
+class UserReviewCreateAPIView(generics.CreateAPIView):
+    queryset = UserReview.objects.all()
+    serializer_class = UserReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+# 2️⃣ Retrieve all reviews for a specific menu item
+class MenuItemReviewsListAPIView(generics.ListAPIView):
+    serializer_class = UserReviewSerializer
+
+    def get_queryset(self):
+        menu_item_id = self.kwargs.get('menu_item_id')
+        if not menu_item_id:
+            raise NotFound("Menu item ID not provided.")
+        return UserReview.objects.filter(menu_item_id=menu_item_id)
