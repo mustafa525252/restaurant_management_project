@@ -8,7 +8,8 @@ from .models import (
     Restaurant,
     DailySpecial,
     UserReview,
-    Review
+    Review,
+    MenuItem
 )
 
 class MenuCategorySerializer(serializers.ModelSerializer):
@@ -67,3 +68,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'user', 'rating', 'text', 'created_at']
+        
+class MenuItemAvailabilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MenuItem
+        fields = ['id', 'name', 'is_available']

@@ -70,13 +70,16 @@ class MenuItem(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     ingredients = models.ManyToManyField('Ingredient', related_name="menu_items", blank=True)
 
-    # 🆕 New field
+    # Existing field
     is_featured = models.BooleanField(default=False, help_text="Mark as featured dish")
+
+    # 🆕 Add availability field
+    is_available = models.BooleanField(default=True, help_text="Indicates if the item is currently available")
 
     objects = MenuItemManager()  # your custom manager
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({'Available' if self.is_available else 'Unavailable'})"
 
 
 class DailySpecial(models.Model):

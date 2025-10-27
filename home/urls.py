@@ -11,7 +11,8 @@ from .views import (
     UserReviewCreateAPIView, 
     MenuItemReviewsListAPIView,
     MenuCategoryListView,
-    CreateReviewAPIView
+    CreateReviewAPIView,
+    UpdateMenuItemAvailabilityAPIView
 )
 
 urlpatterns = [
@@ -31,6 +32,6 @@ urlpatterns = [
     # Get all reviews for a specific menu item
     path('api/menu/<int:menu_item_id>/reviews/', MenuItemReviewsListAPIView.as_view(), name='menuitem-reviews'),
     path('api/menu-categories/', MenuCategoryListView.as_view(), name='menu-categories'),
-    path('api/reviews/create/', CreateReviewAPIView.as_view(), name='create-review')
-    
+    path('api/reviews/create/', CreateReviewAPIView.as_view(), name='create-review'),
+    path('api/menu-items/<int:pk>/availability/', UpdateMenuItemAvailabilityAPIView.as_view(), name='update-menu-item-availability'),
 ]

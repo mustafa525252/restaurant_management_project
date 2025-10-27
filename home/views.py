@@ -4,6 +4,7 @@ from rest_framework import viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from django.db import DatabaseError, IntegrityError
 from django.core.mail import BadHeaderError, SMTPException
 import logging
@@ -17,7 +18,8 @@ from .models import (
     MenuItem,
     DailySpecial,
     UserReview,
-    Review
+    Review,
+    MenuItem
 )
 
 from .serializers import (
@@ -30,7 +32,8 @@ from .serializers import (
     MenuItemSerializer,
     DailySpecialSerializer,
     UserReviewSerializer,
-    ReviewSerializer
+    ReviewSerializer,
+    MenuItemAvailabilitySerializer
 )
 from .utils import send_order_confirmation_email
 
@@ -262,3 +265,31 @@ class CreateReviewAPIView(APIView):
             {"errors": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST
         )
+        
+class UpdateMenuItemAvailabilityAPIView(APIView):
+    """
+    API endpoint to update the availability of a specific menu item.
+    """
+
+    def patch(self, request, pk):
+        try:
+            menu_item = MenuItem.objects.get(pk=pk)
+        except MenuItem.DoesNotExist:
+            return Response(
+                {"error": "Menu item not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = MenuItemAvailabilitySerializer(menu_item, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {
+                    "message": f"Availability for '{menu_item.name}' updated successfully.",
+                    "data": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
