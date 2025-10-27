@@ -165,3 +165,24 @@ class Reservation(models.Model):
             available_slots.append((current_time, end_datetime))
 
         return available_slots
+    
+    
+class Review(models.Model):
+    """
+    Model to store user reviews with ratings and text.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
+    rating = models.PositiveSmallIntegerField(
+        choices=[(i, str(i)) for i in range(1, 6)],
+        help_text="Rating value between 1 (worst) and 5 (best)"
+    )
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "User Review"
+        verbose_name_plural = "User Reviews"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Review by {self.user.username} ({self.rating}/5)"

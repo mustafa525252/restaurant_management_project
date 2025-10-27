@@ -16,7 +16,8 @@ from .models import (
     Restaurant,
     MenuItem,
     DailySpecial,
-    UserReview
+    UserReview,
+    Review
 )
 
 from .serializers import (
@@ -28,7 +29,8 @@ from .serializers import (
     RestaurantSerializer,
     MenuItemSerializer,
     DailySpecialSerializer,
-    UserReviewSerializer
+    UserReviewSerializer,
+    ReviewSerializer
 )
 from .utils import send_order_confirmation_email
 
@@ -241,3 +243,22 @@ class MenuItemReviewsListAPIView(generics.ListAPIView):
         if not menu_item_id:
             raise NotFound("Menu item ID not provided.")
         return UserReview.objects.filter(menu_item_id=menu_item_id)
+    
+class CreateReviewAPIView(APIView):
+    """
+    API endpoint for creating new user reviews.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(
+                {"message": "Review submitted successfully!", "review": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {"errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
