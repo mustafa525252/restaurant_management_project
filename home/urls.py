@@ -9,7 +9,8 @@ from .views import (
     FeaturedMenuItemsView,
     DailySpecialListView,
     UserReviewCreateAPIView, 
-    MenuItemReviewsListAPIView
+    MenuItemReviewsListAPIView,
+    MenuCategoryListView
 )
 
 urlpatterns = [
@@ -26,7 +27,8 @@ urlpatterns = [
     path('api/daily-specials/', DailySpecialListView.as_view(), name='daily-specials'),
     # Create a new review
     path('api/reviews/create/', UserReviewCreateAPIView.as_view(), name='review-create'),
-
     # Get all reviews for a specific menu item
     path('api/menu/<int:menu_item_id>/reviews/', MenuItemReviewsListAPIView.as_view(), name='menuitem-reviews'),
+    path('api/menu-categories/', MenuCategoryListView.as_view(), name='menu-categories')
+    
 ]
