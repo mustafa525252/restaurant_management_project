@@ -3,6 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from datetime import datetime, time
 import logging
 from home.models import MenuItem, Cuisine
+from decimal import Decimal, InvalidOperation
 
 
 def send_order_confirmation_email(order_id, customer_email, customer_name, order_items, total_amount):
@@ -82,3 +83,42 @@ def get_distinct_cuisines():
         .distinct()
     )
     return list(cuisines)
+
+def calculate_discount(original_price, discount_percentage):
+    """
+    Calculate the discounted price for a menu item.
+
+    Args:
+        original_price (float or Decimal): The original price of the item.
+        discount_percentage (float): The discount percentage (0–100).
+
+    Returns:
+        Decimal: The discounted price rounded to two decimal places.
+
+    Handles:
+        - Negative or invalid input values.
+        - Discount percentages outside the valid range.
+        - Non-numeric values gracefully.
+    """
+    try:
+        # Convert inputs to Decimal for better precision
+        original_price = Decimal(str(original_price))
+        discount_percentage = Decimal(str(discount_percentage))
+
+        # Validate inputs
+        if original_price < 0:
+            raise ValueError("Original price cannot be negative.")
+        if discount_percentage < 0 or discount_percentage > 100:
+            raise ValueError("Discount percentage must be between 0 and 100.")
+
+        # Calculate discount
+        discount_amount = (original_price * discount_percentage) / Decimal(100)
+        discounted_price = original_price - discount_amount
+
+        # Ensure price doesn't go below zero
+        return round(max(discounted_price, Decimal('0.00')), 2)
+
+    except (InvalidOperation, ValueError, TypeError) as e:
+        # Handle invalid inputs gracefully
+        print(f"⚠️ Error calculating discount: {e}")
+        return Decimal('0.00')
