@@ -147,3 +147,44 @@ def update_order_status(order_id, new_status_name):
         "success": True,
         "message": f"Order {order_id} status updated to '{new_status_name}'."
     }
+    
+# ----------------------------------------------------------------------
+# 6. Calculating the order total
+# ----------------------------------------------------------------------
+
+def calculate_order_total(order_items):
+    """
+    Calculate the total cost of an order.
+
+    Args:
+        order_items (list of dict): A list of order items, where each item is a dictionary
+            containing 'price' (float or Decimal) and 'quantity' (int).
+
+            Example:
+            [
+                {"price": 99.99, "quantity": 2},
+                {"price": 150.0, "quantity": 1},
+            ]
+
+    Returns:
+        float: The total cost of all items in the order.
+               Returns 0.0 if the list is empty or invalid data is provided.
+    """
+
+    # 🧩 Handle empty or invalid inputs gracefully
+    if not order_items or not isinstance(order_items, list):
+        return 0.0
+
+    total = 0.0
+
+    # 🧮 Iterate through items and calculate total (price * quantity)
+    for item in order_items:
+        try:
+            price = float(item.get("price", 0))
+            quantity = int(item.get("quantity", 0))
+            total += price * quantity
+        except (TypeError, ValueError):
+            # Skip invalid items but continue calculation for valid ones
+            continue
+
+    return round(total, 2)
