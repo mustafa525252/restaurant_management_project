@@ -158,3 +158,27 @@ def get_today_operating_hours():
     if today_hours:
         return today_hours.open_time, today_hours.close_time
     return (None, None)
+
+def is_valid_phone_number(phone_number):
+    """
+    Validate a phone number string.
+
+    Args:
+        phone_number (str): The phone number to validate.
+
+    Returns:
+        bool: True if the phone number matches a basic valid format, False otherwise.
+    
+    A valid phone number:
+    - May start with an optional '+' followed by country code (e.g., +1, +91)
+    - Can contain digits, spaces, or hyphens
+    - Must have 10 to 12 digits total
+    """
+    if not phone_number:
+        return False
+
+    # Regular expression pattern for validating phone numbers
+    pattern = r'^\+?\d[\d\s\-]{8,14}\d$'
+
+    # Use fullmatch to ensure the entire string matches the pattern
+    return bool(re.fullmatch(pattern, phone_number))
