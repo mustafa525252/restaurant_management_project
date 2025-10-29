@@ -234,3 +234,25 @@ class OpeningHour(models.Model):
         if self.is_closed:
             return f"{self.get_day_display()}: Closed"
         return f"{self.get_day_display()}: {self.opening_time.strftime('%I:%M %p')} - {self.closing_time.strftime('%I:%M %p')}"
+    
+class NutritionalInformation(models.Model):
+    """
+    Stores detailed nutritional data for each menu item.
+    """
+    menu_item = models.ForeignKey(
+        'MenuItem',
+        on_delete=models.CASCADE,
+        related_name='nutritional_info',
+        help_text="Menu item associated with this nutritional information"
+    )
+    calories = models.IntegerField(help_text="Total calories in kcal")
+    protein_grams = models.DecimalField(max_digits=5, decimal_places=2, help_text="Protein content (g)")
+    fat_grams = models.DecimalField(max_digits=5, decimal_places=2, help_text="Fat content (g)")
+    carbohydrate_grams = models.DecimalField(max_digits=5, decimal_places=2, help_text="Carbohydrate content (g)")
+
+    class Meta:
+        verbose_name = "Nutritional Information"
+        verbose_name_plural = "Nutritional Information"
+
+    def __str__(self):
+        return f"{self.menu_item.name} - {self.calories} kcal"
