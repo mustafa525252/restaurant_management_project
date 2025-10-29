@@ -9,7 +9,8 @@ from .models import (
     DailySpecial,
     UserReview,
     Review,
-    MenuItem
+    MenuItem,
+    OpeningHour
 )
 
 class MenuCategorySerializer(serializers.ModelSerializer):
@@ -78,3 +79,10 @@ class MenuItemSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuItem
         fields = ['id', 'name', 'image']  # Return only necessary fields
+        
+class OpeningHourSerializer(serializers.ModelSerializer):
+    day_name = serializers.CharField(source='get_day_display', read_only=True)
+
+    class Meta:
+        model = OpeningHour
+        fields = ['day', 'day_name', 'opening_time', 'closing_time', 'is_closed']

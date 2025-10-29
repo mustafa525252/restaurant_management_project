@@ -19,7 +19,8 @@ from .models import (
     DailySpecial,
     UserReview,
     Review,
-    MenuItem
+    MenuItem,
+    OpeningHour
 )
 
 from .serializers import (
@@ -34,7 +35,8 @@ from .serializers import (
     UserReviewSerializer,
     ReviewSerializer,
     MenuItemAvailabilitySerializer,
-    MenuItemSearchSerializer
+    MenuItemSearchSerializer,
+    OpeningHourSerializer
 )
 from .utils import send_order_confirmation_email
 
@@ -316,3 +318,11 @@ class MenuItemSearchView(APIView):
 
         serializer = MenuItemSearchSerializer(items, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class OpeningHoursListView(generics.ListAPIView):
+    """
+    API endpoint to retrieve restaurant opening hours.
+    Returns a list of days with corresponding opening and closing times.
+    """
+    queryset = OpeningHour.objects.all()
+    serializer_class = OpeningHourSerializer

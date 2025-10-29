@@ -189,3 +189,29 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.user.username} ({self.rating}/5)"
+    
+class OpeningHour(models.Model):
+    DAY_CHOICES = [
+        ('Mon', 'Monday'),
+        ('Tue', 'Tuesday'),
+        ('Wed', 'Wednesday'),
+        ('Thu', 'Thursday'),
+        ('Fri', 'Friday'),
+        ('Sat', 'Saturday'),
+        ('Sun', 'Sunday'),
+    ]
+
+    day = models.CharField(max_length=10, choices=DAY_CHOICES, unique=True)
+    opening_time = models.TimeField()
+    closing_time = models.TimeField()
+    is_closed = models.BooleanField(default=False, help_text="Mark if the restaurant is closed on this day")
+
+    class Meta:
+        ordering = ['day']
+        verbose_name = "Opening Hour"
+        verbose_name_plural = "Opening Hours"
+
+    def __str__(self):
+        if self.is_closed:
+            return f"{self.get_day_display()}: Closed"
+        return f"{self.get_day_display()}: {self.opening_time.strftime('%I:%M %p')} - {self.closing_time.strftime('%I:%M %p')}"
