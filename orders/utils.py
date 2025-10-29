@@ -7,6 +7,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from smtplib import SMTPException
+from decimal import Decimal, ROUND_HALF_UP
 
 logger = logging.getLogger(__name__)
 
@@ -188,3 +189,35 @@ def calculate_order_total(order_items):
             continue
 
     return round(total, 2)
+
+
+def calculate_tip_amount(order_total, tip_percentage):
+    """
+    Calculate the tip amount for a given order total and tip percentage.
+
+    Args:
+        order_total (Decimal or float): The total amount of the order before tip.
+        tip_percentage (int or float): The tip percentage (e.g., 10, 15, 20).
+
+    Returns:
+        Decimal: The calculated tip amount rounded to two decimal places.
+    """
+    try:
+        # Convert inputs to Decimal for currency precision
+        order_total = Decimal(order_total)
+        tip_percentage = Decimal(tip_percentage)
+
+        # Ensure non-negative inputs
+        if order_total < 0 or tip_percentage < 0:
+            raise ValueError("Order total and tip percentage must be non-negative.")
+
+        # Calculate tip amount
+        tip_amount = order_total * (tip_percentage / Decimal(100))
+
+        # Round to 2 decimal places (currency format)
+        return tip_amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+    except Exception as e:
+        # Log error or handle gracefully if needed
+        print(f"Error calculating tip amount: {e}")
+        return Decimal('0.00')
