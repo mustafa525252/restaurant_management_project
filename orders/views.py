@@ -125,3 +125,15 @@ def get_order_status(request, order_id):
         },
         status=status.HTTP_200_OK
     )
+    
+class OrderStatusRetrieveView(generics.RetrieveAPIView):
+    serializer_class = OrderStatusSerializer
+    lookup_field = 'order_id'
+
+    def get(self, request, order_id):
+        try:
+            order = Order.objects.get(order_id=order_id)
+            serializer = self.serializer_class(order)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Order.DoesNotExist:
+            return Response({"error": "Order not found."}, status=status.HTTP_404_NOT_FOUND)

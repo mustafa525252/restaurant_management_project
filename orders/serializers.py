@@ -3,9 +3,11 @@ from .models import Order, OrderStatus
 
 
 class OrderStatusSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(source='order_status.name', read_only=True)
+
     class Meta:
-        model = OrderStatus
-        fields = ['name']
+        model = Order
+        fields = ['order_id', 'status']
 
 
 class OrderSerializer(serializers.ModelSerializer):

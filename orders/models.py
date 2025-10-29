@@ -46,7 +46,17 @@ class OrderStatus(models.Model):
 
 
 class Order(models.Model):
-    # ... your existing fields and managers ...
+    customer = models.ForeignKey(
+        'auth.User', on_delete=models.CASCADE, related_name='orders'
+    )
+    order_date = models.DateTimeField(auto_now_add=True)
+    order_status = models.ForeignKey(
+        'OrderStatus', on_delete=models.SET_NULL, null=True, blank=True
+    )
+    order_id = models.CharField(max_length=12, unique=True, editable=False)
+    name = models.CharField(max_length=100)
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def calculate_total(self):
         """
@@ -59,25 +69,24 @@ class Order(models.Model):
         for item in self.items.all():  # related_name='items' from OrderItem
             total += item.price * item.quantity
 
-        # 2️⃣ Try applying discount (if applicable)
+        # 2️⃣ Apply discount if applicable
         try:
-            from .utils import calculate_discount  # Import discount utility if it exists
+            from .utils import calculate_discount  # Lazy import to prevent circular import
 
-            # Check if this order has a coupon (assuming you later add an FK to Coupon)
             coupon = getattr(self, 'coupon', None)
             if coupon and hasattr(coupon, 'is_valid') and coupon.is_valid():
                 total = calculate_discount(total, coupon.discount_percentage)
 
         except ImportError:
-            # If calculate_discount not found, skip discount step
             pass
         except Exception as e:
-            # In case of any other error, don't break calculation
             print(f"Discount calculation skipped due to: {e}")
 
-        # 3️⃣ Return rounded total
+        # 3️⃣ Round and return
         return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
+    def __str__(self):
+        return f"Order {self.order_id} - {self.order_status.name if self.order_status else 'No Status'}"
 
 # 🧾 OrderItem model
 class OrderItem(models.Model):
