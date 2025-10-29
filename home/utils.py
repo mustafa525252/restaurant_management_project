@@ -5,7 +5,7 @@ import logging
 from home.models import MenuItem, Cuisine
 from decimal import Decimal, InvalidOperation
 import re
-
+from home.models import DailyOperatingHours
 def send_order_confirmation_email(order_id, customer_email, customer_name, order_items, total_amount):
     """
     Sends an order confirmation email to the customer.
@@ -139,3 +139,22 @@ def is_valid_email(email: str) -> bool:
     if re.match(email_regex, email):
         return True
     return False
+
+def get_today_operating_hours():
+    """
+    Retrieve the restaurant's operating hours for the current day.
+
+    Returns:
+        tuple: (open_time, close_time) if available,
+               otherwise (None, None) if the restaurant is closed or entry missing.
+    """
+    # 1️⃣ Get current day name (e.g., "Monday")
+    today = datetime.now().strftime('%A')
+
+    # 2️⃣ Query for today's operating hours
+    today_hours = DailyOperatingHours.objects.filter(day__iexact=today).first()
+
+    # 3️⃣ Return operating hours if found, else (None, None)
+    if today_hours:
+        return today_hours.open_time, today_hours.close_time
+    return (None, None)

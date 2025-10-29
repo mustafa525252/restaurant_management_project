@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from datetime import timedelta
 from django.db.models import Q
+from decimal import Decimal, ROUND_HALF_UP
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=255)
