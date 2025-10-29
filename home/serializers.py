@@ -73,3 +73,8 @@ class MenuItemAvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuItem
         fields = ['id', 'name', 'is_available']
+        
+class MenuItemSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MenuItem
+        fields = ['id', 'name', 'image']  # Return only necessary fields

@@ -33,7 +33,8 @@ from .serializers import (
     DailySpecialSerializer,
     UserReviewSerializer,
     ReviewSerializer,
-    MenuItemAvailabilitySerializer
+    MenuItemAvailabilitySerializer,
+    MenuItemSearchSerializer
 )
 from .utils import send_order_confirmation_email
 
@@ -293,3 +294,25 @@ class UpdateMenuItemAvailabilityAPIView(APIView):
             )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class MenuItemSearchView(APIView):
+    """
+    API endpoint for searching menu items by name (case-insensitive).
+    Example: /api/menu/search/?q=pizza
+    """
+
+    def get(self, request):
+        query = request.GET.get('q', '').strip()
+
+        if not query:
+            return Response(
+                {"error": "Please provide a search term using the 'q' parameter."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Case-insensitive search using __icontains
+        items = MenuItem.objects.filter(name__icontains=query)
+
+        serializer = MenuItemSearchSerializer(items, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
