@@ -15,6 +15,7 @@ class Restaurant(models.Model):
         max_length=100,
         help_text="Comma-separated list of days, e.g., 'Mon,Tue,Wed,Thu,Fri,Sat'"
     )
+    has_delivery = models.BooleanField(default=False)  # ✅ Indicates if delivery service is available
 
     def __str__(self):
         return self.name
