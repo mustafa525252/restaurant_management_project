@@ -4,7 +4,7 @@ from datetime import datetime, time
 import logging
 from home.models import MenuItem, Cuisine
 from decimal import Decimal, InvalidOperation
-
+import re
 
 def send_order_confirmation_email(order_id, customer_email, customer_name, order_items, total_amount):
     """
@@ -122,3 +122,20 @@ def calculate_discount(original_price, discount_percentage):
         # Handle invalid inputs gracefully
         print(f"⚠️ Error calculating discount: {e}")
         return Decimal('0.00')
+    
+    
+def is_valid_email(email: str) -> bool:
+    """
+    Validates an email address using a regular expression.
+    Returns True if the email format is valid, otherwise False.
+    """
+    if not isinstance(email, str):
+        return False
+
+    # Regular expression for validating email addresses
+    email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+
+    # Use re.match to check if the pattern matches the input
+    if re.match(email_regex, email):
+        return True
+    return False
