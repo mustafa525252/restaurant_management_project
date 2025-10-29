@@ -69,17 +69,35 @@ class MenuItem(models.Model):
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     ingredients = models.ManyToManyField('Ingredient', related_name="menu_items", blank=True)
-
-    # Existing field
     is_featured = models.BooleanField(default=False, help_text="Mark as featured dish")
-
-    # 🆕 Add availability field
     is_available = models.BooleanField(default=True, help_text="Indicates if the item is currently available")
 
-    objects = MenuItemManager()  # your custom manager
+    # 🆕 New field for discounts
+    discount_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0.00,
+        help_text="Discount percentage (0-100)"
+    )
+
+    objects = MenuItemManager()  # custom manager, if defined
 
     def __str__(self):
         return f"{self.name} ({'Available' if self.is_available else 'Unavailable'})"
+
+    # 🧮 New method to calculate final price after discount
+    def get_final_price(self):
+        """
+        Calculate the final price of the menu item after applying discount (if any).
+        Returns the price as a float rounded to 2 decimal places.
+        """
+        if not self.discount_percentage or self.discount_percentage <= 0:
+            return float(self.price)
+
+        discount_amount = (self.price * self.discount_percentage) / Decimal('100')
+        final_price = self.price - discount_amount
+        # Round to 2 decimal places
+        return float(final_price.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
 
 
 class DailySpecial(models.Model):
