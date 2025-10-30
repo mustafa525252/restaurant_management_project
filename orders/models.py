@@ -167,3 +167,28 @@ class LoyaltyProgram(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.discount_percentage}% off)"
+    
+    
+class PaymentMethod(models.Model):
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+        help_text="Name of the payment method (e.g., Credit Card, Cash, Online Wallet)."
+    )
+    description = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Optional description or details about the payment method."
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Indicates whether this payment method is currently available."
+    )
+
+    class Meta:
+        verbose_name = "Payment Method"
+        verbose_name_plural = "Payment Methods"
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
