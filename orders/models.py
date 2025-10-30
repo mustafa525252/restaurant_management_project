@@ -85,6 +85,19 @@ class Order(models.Model):
         # 3️⃣ Round and return
         return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
+    def get_unique_item_names(self):
+        """
+        Returns a list of unique menu item names for this order.
+        """
+        unique_names = set()
+
+        # Assumes related_name='items' from OrderItem model, and each OrderItem has menu_item FK
+        for order_item in self.items.all():
+            if hasattr(order_item, 'menu_item') and order_item.menu_item:
+                unique_names.add(order_item.menu_item.name)
+
+        return list(unique_names)
+
     def __str__(self):
         return f"Order {self.order_id} - {self.order_status.name if self.order_status else 'No Status'}"
 
