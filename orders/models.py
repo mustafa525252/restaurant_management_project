@@ -138,3 +138,32 @@ class Coupon(models.Model):
     def is_valid(self):
         today = timezone.now().date()
         return self.is_active and self.valid_form <= today <= self.valid_until
+
+
+
+class LoyaltyProgram(models.Model):
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+        help_text="Name of the loyalty tier (e.g., Bronze, Silver, Gold)."
+    )
+    points_required = models.PositiveIntegerField(
+        unique=True,
+        help_text="Minimum loyalty points required to reach this tier."
+    )
+    discount_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        help_text="Discount percentage for this tier (e.g., 5.00 for 5%)."
+    )
+    description = models.TextField(
+        help_text="Brief explanation of the benefits for this tier."
+    )
+
+    class Meta:
+        ordering = ['points_required']
+        verbose_name = "Loyalty Program Tier"
+        verbose_name_plural = "Loyalty Program Tiers"
+
+    def __str__(self):
+        return f"{self.name} ({self.discount_percentage}% off)"
