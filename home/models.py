@@ -109,6 +109,9 @@ class DailySpecial(models.Model):
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Attach the custom manager
+    objects = DailySpecialManager()
+
     def __str__(self):
         return self.name
 
@@ -257,3 +260,12 @@ class NutritionalInformation(models.Model):
 
     def __str__(self):
         return f"{self.menu_item.name} - {self.calories} kcal"
+    
+    
+class DailySpecialManager(models.Manager):
+    def upcoming(self):
+        """
+        Returns only the DailySpecials scheduled for today or in the future.
+        """
+        today = datetime.date.today()
+        return self.filter(date__gte=today)
