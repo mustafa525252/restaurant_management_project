@@ -109,9 +109,6 @@ class DailySpecial(models.Model):
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Attach the custom manager
-    objects = DailySpecialManager()
-
     def __str__(self):
         return self.name
 
