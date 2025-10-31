@@ -36,7 +36,8 @@ from .serializers import (
     ReviewSerializer,
     MenuItemAvailabilitySerializer,
     MenuItemSearchSerializer,
-    OpeningHourSerializer
+    OpeningHourSerializer,
+    RestaurantDetailSerializer
 )
 from .utils import send_order_confirmation_email
 
@@ -326,3 +327,9 @@ class OpeningHoursListView(generics.ListAPIView):
     """
     queryset = OpeningHour.objects.all()
     serializer_class = OpeningHourSerializer
+    
+    
+class RestaurantDetailAPIView(generics.RetrieveAPIView):
+    """Retrieve detailed info about the restaurant, including opening hours."""
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantDetailSerializer

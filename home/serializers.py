@@ -86,3 +86,16 @@ class OpeningHourSerializer(serializers.ModelSerializer):
     class Meta:
         model = OpeningHour
         fields = ['day', 'day_name', 'opening_time', 'closing_time', 'is_closed']
+
+
+class RestaurantDetailSerializer(serializers.ModelSerializer):
+    opening_hours = OpeningHourSerializer(
+        many=True, read_only=True, source='openinghour_set'
+    )
+
+    class Meta:
+        model = Restaurant
+        fields = [
+            'id', 'name', 'address', 'contact_number',
+            'operating_days', 'has_delivery', 'opening_hours'
+        ]
