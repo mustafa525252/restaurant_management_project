@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
-from .models import Order, OrderStatus
-from .serializers import OrderSerializer, OrderStatusUpdateSerializer
+from .models import Order, OrderStatus, PaymentMethod
+from .serializers import OrderSerializer, OrderStatusSerializer, OrderStatusUpdateSerializer, PaymentMethodSerializer
 from home.utils import send_email 
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -137,3 +137,7 @@ class OrderStatusRetrieveView(generics.RetrieveAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Order.DoesNotExist:
             return Response({"error": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+class PaymentMethodListAPIView(generics.ListAPIView):
+    queryset = PaymentMethod.objects.filter(is_active=True)  # ✅ Only active methods
+    serializer_class = PaymentMethodSerializer

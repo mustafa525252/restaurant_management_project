@@ -4,7 +4,8 @@ from .views import (
     CancelOrderAPIView,
     OrderDetailAPIView,
     UpdateOrderStatusView,
-    OrderStatusRetrieveView,  # ✅ use this, not get_order_status
+    OrderStatusRetrieveView,
+    PaymentMethodListAPIView
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path('orders/<str:order_id>/cancel/', CancelOrderAPIView.as_view(), name='cancel-order'),
     path('orders/<str:order_id>/update-status/', UpdateOrderStatusView.as_view(), name='update-order-status'),
     path('api/orders/<str:order_id>/status/', OrderStatusRetrieveView.as_view(), name='order-status'),
+    path('api/payment-methods/', PaymentMethodListAPIView.as_view(), name='payment-method-list'),
 ]

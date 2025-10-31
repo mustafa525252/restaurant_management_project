@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order, OrderStatus
+from .models import Order, OrderStatus, PaymentMethod
 
 
 class OrderStatusSerializer(serializers.ModelSerializer):
@@ -53,3 +53,9 @@ class OrderStatusUpdateSerializer(serializers.Serializer):
         instance.order_status = validated_data['status_obj']
         instance.save()
         return instance
+
+
+class PaymentMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentMethod
+        fields = '__all__'  # ✅ Includes all fields from the model
