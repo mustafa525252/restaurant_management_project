@@ -7,7 +7,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from smtplib import SMTPException
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP,InvalidOperation
 
 logger = logging.getLogger(__name__)
 
@@ -220,4 +220,32 @@ def calculate_tip_amount(order_total, tip_percentage):
     except Exception as e:
         # Log error or handle gracefully if needed
         print(f"Error calculating tip amount: {e}")
+        return Decimal('0.00')
+
+
+def calculate_discount(order_total, discount_percentage):
+    """
+    Calculate the discount amount for a given order total and discount percentage.
+
+    Args:
+        order_total (float | Decimal): The total amount of the order before discount.
+        discount_percentage (float | Decimal): The discount percentage (e.g., 10 for 10%).
+
+    Returns:
+        Decimal: The calculated discount amount rounded to two decimal places.
+                  Returns Decimal('0.00') if inputs are invalid.
+
+    Example:
+        >>> calculate_discount(100, 10)
+        Decimal('10.00')
+    """
+    try:
+        total = Decimal(order_total)
+        percentage = Decimal(discount_percentage)
+        if total < 0 or percentage < 0:
+            return Decimal('0.00')
+        discount_amount = total * (percentage / Decimal('100'))
+        return discount_amount.quantize(Decimal('0.01'))
+    except (InvalidOperation, TypeError, ValueError):
+        # Handles non-numeric or invalid input
         return Decimal('0.00')

@@ -15,7 +15,8 @@ from .views import (
     UpdateMenuItemAvailabilityAPIView,
     MenuItemSearchView,
     OpeningHoursListView,
-    RestaurantDetailAPIView
+    RestaurantDetailAPIView,
+    MenuItemDetailAPIView
 )
 
 urlpatterns = [
