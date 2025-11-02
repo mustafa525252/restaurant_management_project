@@ -16,8 +16,8 @@ class Restaurant(models.Model):
         help_text="Comma-separated list of days, e.g., 'Mon,Tue,Wed,Thu,Fri,Sat'"
     )
     has_delivery = models.BooleanField(default=False)
-    
-    # 🕒 New field for opening hours
+
+    # 🕒 Opening hours
     opening_hours = models.CharField(
         max_length=100,
         help_text="Enter opening and closing times, e.g. '11:00 AM - 11:00 PM (EST)'",
@@ -26,6 +26,14 @@ class Restaurant(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_total_menu_items(self):
+        """
+        Returns the total number of menu items available in the database.
+        Useful for showing restaurant summary info.
+        """
+        from home.models import MenuItem  # local import to prevent circular import
+        return MenuItem.objects.count()
 
 class Table(models.Model):
     table_number = models.CharField(max_length=10, unique=True)
