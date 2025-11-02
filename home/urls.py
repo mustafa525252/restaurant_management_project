@@ -17,7 +17,8 @@ from .views import (
     OpeningHoursListView,
     RestaurantDetailAPIView,
     MenuItemDetailAPIView,
-    RestaurantOpeningHoursView
+    RestaurantOpeningHoursView,
+    MenuItemListView
 )
 
 urlpatterns = [
@@ -44,4 +45,5 @@ urlpatterns = [
     path('api/restaurant/<int:pk>/', RestaurantDetailAPIView.as_view(), name='restaurant-detail'),
     path('menu/<int:id>/', MenuItemDetailAPIView.as_view(), name='menu-item-detail'),
     path('restaurant/opening-hours/', RestaurantOpeningHoursView.as_view(), name='restaurant-opening-hours'),
+    path('menu/items/', MenuItemListView.as_view(), name='menu-items'),
 ]

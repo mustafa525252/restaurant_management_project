@@ -375,3 +375,23 @@ class RestaurantOpeningHoursView(APIView):
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+            
+            
+
+class MenuItemListView(generics.ListAPIView):
+    """
+    API endpoint to retrieve all menu items with their category.
+    """
+    queryset = MenuItem.objects.select_related('category').all()
+    serializer_class = MenuItemSerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": f"Failed to fetch menu items: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
