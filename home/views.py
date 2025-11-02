@@ -37,7 +37,8 @@ from .serializers import (
     MenuItemAvailabilitySerializer,
     MenuItemSearchSerializer,
     OpeningHourSerializer,
-    RestaurantDetailSerializer
+    RestaurantDetailSerializer,
+    MenuItemDetailSerializer
 )
 from .utils import send_order_confirmation_email
 
@@ -333,3 +334,20 @@ class RestaurantDetailAPIView(generics.RetrieveAPIView):
     """Retrieve detailed info about the restaurant, including opening hours."""
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantDetailSerializer
+    
+class MenuItemDetailAPIView(generics.RetrieveAPIView):
+    """
+    API endpoint to retrieve detailed information for a single menu item by ID.
+    """
+    queryset = MenuItem.objects.all()
+    serializer_class = MenuItemDetailSerializer
+    lookup_field = 'id'
+
+    def get(self, request, *args, **kwargs):
+        menu_id = kwargs.get('id')
+        try:
+            menu_item = self.get_queryset().get(id=menu_id)
+        except MenuItem.DoesNotExist:
+            raise NotFound(detail="Menu item not found.")
+        serializer = self.get_serializer(menu_item)
+        return Response(serializer.data, status=status.HTTP_200_OK)

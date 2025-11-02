@@ -40,4 +40,5 @@ urlpatterns = [
     path('menu/search/', MenuItemSearchView.as_view(), name='menu-item-search'),
     path('api/opening-hours/', OpeningHoursListView.as_view(), name='opening-hours-list'),
     path('api/restaurant/<int:pk>/', RestaurantDetailAPIView.as_view(), name='restaurant-detail'),
+    path('menu/<int:id>/', MenuItemDetailAPIView.as_view(), name='menu-item-detail'),
 ]

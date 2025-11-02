@@ -99,3 +99,8 @@ class RestaurantDetailSerializer(serializers.ModelSerializer):
             'id', 'name', 'address', 'contact_number',
             'operating_days', 'has_delivery', 'opening_hours'
         ]
+        
+class MenuItemDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MenuItem
+        fields = ['id', 'name', 'description', 'price', 'is_available']
