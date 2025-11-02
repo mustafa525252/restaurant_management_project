@@ -15,11 +15,17 @@ class Restaurant(models.Model):
         max_length=100,
         help_text="Comma-separated list of days, e.g., 'Mon,Tue,Wed,Thu,Fri,Sat'"
     )
-    has_delivery = models.BooleanField(default=False)  # ✅ Indicates if delivery service is available
+    has_delivery = models.BooleanField(default=False)
+    
+    # 🕒 New field for opening hours
+    opening_hours = models.CharField(
+        max_length=100,
+        help_text="Enter opening and closing times, e.g. '11:00 AM - 11:00 PM (EST)'",
+        default="11:00 AM - 11:00 PM (EST)"
+    )
 
     def __str__(self):
         return self.name
-
 
 class Table(models.Model):
     table_number = models.CharField(max_length=10, unique=True)

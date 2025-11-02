@@ -351,3 +351,27 @@ class MenuItemDetailAPIView(generics.RetrieveAPIView):
             raise NotFound(detail="Menu item not found.")
         serializer = self.get_serializer(menu_item)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+class RestaurantOpeningHoursView(APIView):
+    """
+    API endpoint to retrieve the restaurant's opening hours.
+    """
+
+    def get(self, request):
+        try:
+            restaurant = Restaurant.objects.first()  # Assuming one restaurant
+            if not restaurant:
+                return Response(
+                    {"error": "Restaurant not found."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            return Response(
+                {"opening_hours": restaurant.opening_hours},
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
