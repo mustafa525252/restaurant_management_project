@@ -1,6 +1,17 @@
 from rest_framework import generics, permissions
-from .models import Order, OrderStatus, PaymentMethod
-from .serializers import OrderSerializer, OrderStatusSerializer, OrderStatusUpdateSerializer, PaymentMethodSerializer
+from .models import (
+    Order,
+    OrderStatus,
+    PaymentMethod,
+    Review
+)
+from .serializers import (
+    OrderSerializer,
+    OrderStatusSerializer,
+    OrderStatusUpdateSerializer,
+    PaymentMethodSerializer,
+    ReviewSerializer
+)
 from home.utils import send_email 
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -141,3 +152,20 @@ class OrderStatusRetrieveView(generics.RetrieveAPIView):
 class PaymentMethodListAPIView(generics.ListAPIView):
     queryset = PaymentMethod.objects.filter(is_active=True)  # ✅ Only active methods
     serializer_class = PaymentMethodSerializer
+    
+class ReviewListView(generics.ListAPIView):
+    """
+    API endpoint to retrieve all restaurant reviews.
+    Includes pagination and error handling.
+    """
+    serializer_class = ReviewSerializer
+    queryset = Review.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except DatabaseError:
+            return Response(
+                {"error": "Unable to retrieve reviews at this time."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

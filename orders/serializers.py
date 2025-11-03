@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order, OrderStatus, PaymentMethod
+from .models import Order, OrderStatus, PaymentMethod, Review
 
 
 class OrderStatusSerializer(serializers.ModelSerializer):
@@ -59,3 +59,10 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentMethod
         fields = '__all__'  # ✅ Includes all fields from the model
+        
+        
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'user_name', 'rating', 'review_text', 'created_at']

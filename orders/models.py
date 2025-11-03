@@ -191,3 +191,17 @@ class LoyaltyProgram(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.discount_percentage}% off)"
+    
+    
+class Review(models.Model):
+    restaurant = models.ForeignKey('home.Restaurant', on_delete=models.CASCADE, related_name='reviews')
+    user_name = models.CharField(max_length=100)
+    rating = models.PositiveSmallIntegerField(default=1)  # 1–5 stars
+    review_text = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user_name} - {self.rating}⭐"
