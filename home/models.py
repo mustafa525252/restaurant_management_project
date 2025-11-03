@@ -249,6 +249,23 @@ class OpeningHour(models.Model):
         if self.is_closed:
             return f"{self.get_day_display()}: Closed"
         return f"{self.get_day_display()}: {self.opening_time.strftime('%I:%M %p')} - {self.closing_time.strftime('%I:%M %p')}"
+
+    # ✅ Add this static method below
+    @staticmethod
+    def get_today_hours():
+        """
+        Returns today's opening hours as a string.
+        Example: 'Monday: 10:00 AM - 9:00 PM' or 'Closed'
+        """
+        today = datetime.now().strftime('%a')  # e.g., 'Mon', 'Tue'
+        today_hours = OpeningHour.objects.filter(day=today).first()
+
+        if not today_hours:
+            return "No data available"
+        if today_hours.is_closed:
+            return f"{today_hours.get_day_display()}: Closed"
+
+        return f"{today_hours.get_day_display()}: {today_hours.opening_time.strftime('%I:%M %p')} - {today_hours.closing_time.strftime('%I:%M %p')}"
     
 class NutritionalInformation(models.Model):
     """
