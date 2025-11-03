@@ -395,3 +395,20 @@ class MenuItemListView(generics.ListAPIView):
                 {"error": f"Failed to fetch menu items: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+            
+class MenuItemAvailabilityView(APIView):
+    """
+    API endpoint to check availability of a menu item by ID.
+    """
+    def get(self, request, pk):
+        try:
+            menu_item = MenuItem.objects.get(pk=pk)
+            return Response(
+                {"available": menu_item.is_available},
+                status=status.HTTP_200_OK
+            )
+        except MenuItem.DoesNotExist:
+            return Response(
+                {"error": "Menu item not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
