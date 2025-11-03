@@ -412,3 +412,49 @@ class MenuItemAvailabilityView(APIView):
                 {"error": "Menu item not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
+            
+class MenuItemPriceRangeView(generics.ListAPIView):
+    """
+    API endpoint to retrieve menu items within a specified price range.
+    Accepts query params: ?min_price=XX&max_price=YY
+    """
+    serializer_class = MenuItemSerializer
+
+    def get_queryset(self):
+        queryset = MenuItem.objects.all()
+        min_price = self.request.query_params.get('min_price')
+        max_price = self.request.query_params.get('max_price')
+
+        try:
+            if min_price:
+                min_price = float(min_price)
+            else:
+                min_price = 0.0
+
+            if max_price:
+                max_price = float(max_price)
+            else:
+                max_price = float('inf')
+
+            queryset = queryset.filter(price__gte=min_price, price__lte=max_price)
+        except ValueError:
+            # Handle invalid price input
+            queryset = MenuItem.objects.none()
+
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+            if not queryset.exists():
+                return Response(
+                    {"message": "No menu items found in this price range."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except DatabaseError:
+            return Response(
+                {"error": "A database error occurred while retrieving menu items."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

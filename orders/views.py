@@ -12,6 +12,8 @@ from .serializers import (
     PaymentMethodSerializer,
     ReviewSerializer
 )
+from django.db import DatabaseError
+
 from home.utils import send_email 
 from rest_framework.response import Response
 from rest_framework import status, permissions

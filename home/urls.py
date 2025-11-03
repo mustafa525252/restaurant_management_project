@@ -19,7 +19,8 @@ from .views import (
     MenuItemDetailAPIView,
     RestaurantOpeningHoursView,
     MenuItemListView,
-    MenuItemAvailabilityView
+    MenuItemAvailabilityView,
+    MenuItemPriceRangeView
 )
 
 urlpatterns = [
@@ -48,4 +49,5 @@ urlpatterns = [
     path('restaurant/opening-hours/', RestaurantOpeningHoursView.as_view(), name='restaurant-opening-hours'),
     path('menu/items/', MenuItemListView.as_view(), name='menu-items'),
     path('menu-items/<int:pk>/availability/', MenuItemAvailabilityView.as_view(), name='menu-item-availability'),
+    path('menu-items/price-range/', MenuItemPriceRangeView.as_view(), name='menuitem-price-range'),
 ]
