@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from smtplib import SMTPException
 from decimal import Decimal, ROUND_HALF_UP,InvalidOperation
+from django.db.models import Avg
 
 logger = logging.getLogger(__name__)
 
@@ -249,3 +250,20 @@ def calculate_discount(order_total, discount_percentage):
     except (InvalidOperation, TypeError, ValueError):
         # Handles non-numeric or invalid input
         return Decimal('0.00')
+    
+
+def calculate_average_rating(reviews_queryset):
+    """
+    Calculate the average rating from a queryset of reviews.
+
+    Args:
+        reviews_queryset (QuerySet): A queryset of Review objects containing a 'rating' field.
+
+    Returns:
+        float: The average rating rounded to 2 decimal places, or 0.0 if no reviews exist.
+    """
+    if not reviews_queryset.exists():
+        return 0.0
+
+    average = reviews_queryset.aggregate(avg_rating=Avg('rating'))['avg_rating']
+    return round(average or 0.0, 2)
