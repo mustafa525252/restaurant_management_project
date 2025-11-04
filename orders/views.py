@@ -13,7 +13,7 @@ from .serializers import (
     ReviewSerializer
 )
 from django.db import DatabaseError
-
+from rest_framework.pagination import PageNumberPagination
 from home.utils import send_email 
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -171,3 +171,20 @@ class ReviewListView(generics.ListAPIView):
                 {"error": "Unable to retrieve reviews at this time."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+            
+class OrderHistoryPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+
+class UserOrderHistoryView(generics.ListAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = OrderHistoryPagination
+
+    def get_queryset(self):
+        """
+        Return all orders belonging to the authenticated user.
+        """
+        return Order.objects.filter(customer=self.request.user).order_by('-order_date')

@@ -13,18 +13,31 @@ class OrderStatusSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     customer_name = serializers.CharField(source='customer.username', read_only=True)
     order_status = OrderStatusSerializer(read_only=True)
+    total_amount = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = [
             'id',
+            'order_id',
             'customer_name',
             'name',
             'quantity',
             'price',
             'order_status',
-            'order_date'
+            'order_date',
+            'total_amount',
         ]
+
+    def get_total_amount(self, obj):
+        """
+        Returns the total price for the order using the model's calculate_total() method.
+        """
+        try:
+            return obj.calculate_total()
+        except Exception:
+            # Fallback if there are no items or method error
+            return obj.price * obj.quantity
 
 
 # ✅ Serializer for Updating Order Status
