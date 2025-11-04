@@ -3,8 +3,9 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.conf import settings
 from decimal import Decimal, ROUND_HALF_UP
+from django.db.models import Sum, F, DecimalField
 from home.models import MenuItem  # 👈 assuming MenuItem exists in home/models.py
-
+from decimal import Decimal
 
 # 🧠 Custom Manager for querying by status
 class OrderManager(models.Manager):
@@ -59,54 +60,46 @@ class Order(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def calculate_total(self):
-        """
-        Calculate total cost of the order by summing (price * quantity) for each order item.
-        If a valid coupon/discount applies, apply it using the `calculate_discount` utility.
-        """
         total = Decimal('0.00')
-
-        # 1️⃣ Sum up item totals
-        for item in self.items.all():  # related_name='items' from OrderItem
+        for item in self.items.all():
             total += item.price * item.quantity
-
-        # 2️⃣ Apply discount if applicable
-        try:
-            from .utils import calculate_discount  # Lazy import to prevent circular import
-            coupon = getattr(self, 'coupon', None)
-            if coupon and hasattr(coupon, 'is_valid') and coupon.is_valid():
-                total = calculate_discount(total, coupon.discount_percentage)
-        except ImportError:
-            pass
-        except Exception as e:
-            print(f"Discount calculation skipped due to: {e}")
-
-        # 3️⃣ Round and return
-        return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        return total.quantize(Decimal('0.01'))
 
     def get_unique_item_names(self):
-        """
-        Returns a list of unique menu item names for this order.
-        """
         unique_names = set()
-
-        # Assumes related_name='items' from OrderItem model, and each OrderItem has menu_item FK
         for order_item in self.items.all():
             if hasattr(order_item, 'menu_item') and order_item.menu_item:
                 unique_names.add(order_item.menu_item.name)
-
         return list(unique_names)
 
     def get_total_item_count(self):
-        """
-        Returns the total number of items in this order.
-        This sums up the quantity of all related OrderItems.
-        """
         total_items = self.items.aggregate(total=models.Sum('quantity'))['total']
-        return total_items or 0  # Safely handles case with no related items
+        return total_items or 0
+
+    # 💰 New method: total revenue from all completed orders
+    @classmethod
+    def calculate_total_revenue(cls):
+        """
+        Calculate total revenue from all completed orders.
+        Returns a Decimal value representing the total revenue.
+        """
+        from .models import OrderStatus  # avoid circular import
+
+        completed_status = OrderStatus.objects.filter(name__iexact='completed').first()
+        if not completed_status:
+            return Decimal('0.00')
+
+        total = cls.objects.filter(order_status=completed_status).aggregate(
+            total_revenue=Sum(
+                F('price') * F('quantity'),
+                output_field=DecimalField(max_digits=12, decimal_places=2)
+            )
+        )['total_revenue']
+
+        return total or Decimal('0.00')
 
     def __str__(self):
         return f"Order {self.order_id} - {self.order_status.name if self.order_status else 'No Status'}"
-
 
 # 🧾 OrderItem model
 class OrderItem(models.Model):
