@@ -6,6 +6,7 @@ from datetime import datetime
 from datetime import timedelta
 from django.db.models import Q
 from decimal import Decimal, ROUND_HALF_UP
+from django.utils import timezone
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=255)
@@ -297,3 +298,23 @@ class DailySpecialManager(models.Manager):
         """
         today = datetime.date.today()
         return self.filter(date__gte=today)
+    
+# 🧠 Step 1: Custom Manager
+class ReservationManager(models.Manager):
+    def get_upcoming_reservations(self):
+        now = timezone.now()
+        return self.filter(reservation_datetime__gt=now)
+
+
+# 🏨 Step 2: Model using the Manager
+class Reservation(models.Model):
+    customer_name = models.CharField(max_length=100)
+    reservation_datetime = models.DateTimeField()
+    num_people = models.PositiveIntegerField(default=1)
+    special_requests = models.TextField(blank=True, null=True)
+
+    # Assign custom manager
+    objects = ReservationManager()
+
+    def __str__(self):
+        return f"{self.customer_name} - {self.reservation_datetime.strftime('%Y-%m-%d %H:%M')}"
