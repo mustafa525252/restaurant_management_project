@@ -398,13 +398,14 @@ class MenuItemListView(generics.ListAPIView):
             
 class MenuItemAvailabilityView(APIView):
     """
-    API endpoint to check availability of a menu item by ID.
+    API endpoint to check availability of a single menu item by ID.
+    Example: /api/menu-items/availability/5/
     """
     def get(self, request, pk):
         try:
             menu_item = MenuItem.objects.get(pk=pk)
             return Response(
-                {"available": menu_item.is_available},
+                {"id": menu_item.id, "name": menu_item.name, "available": menu_item.is_available},
                 status=status.HTTP_200_OK
             )
         except MenuItem.DoesNotExist:
@@ -412,6 +413,36 @@ class MenuItemAvailabilityView(APIView):
                 {"error": "Menu item not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+
+class MenuItemAvailabilityListView(generics.ListAPIView):
+    """
+    API endpoint to list all menu items filtered by availability.
+    Example: /api/menu-items/availability/?available=true
+    """
+    serializer_class = MenuItemAvailabilitySerializer
+
+    def get_queryset(self):
+        queryset = MenuItem.objects.all()
+        available_param = self.request.query_params.get('available')
+
+        # 🟢 Filter if query param provided
+        if available_param is not None:
+            if available_param.lower() in ['true', '1', 'yes']:
+                queryset = queryset.filter(is_available=True)
+            elif available_param.lower() in ['false', '0', 'no']:
+                queryset = queryset.filter(is_available=False)
+
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response({
+            "count": queryset.count(),
+            "menu_items": serializer.data
+        }, status=status.HTTP_200_OK)
             
 class MenuItemPriceRangeView(generics.ListAPIView):
     """
