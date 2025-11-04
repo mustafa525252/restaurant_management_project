@@ -72,11 +72,9 @@ class Order(models.Model):
         # 2️⃣ Apply discount if applicable
         try:
             from .utils import calculate_discount  # Lazy import to prevent circular import
-
             coupon = getattr(self, 'coupon', None)
             if coupon and hasattr(coupon, 'is_valid') and coupon.is_valid():
                 total = calculate_discount(total, coupon.discount_percentage)
-
         except ImportError:
             pass
         except Exception as e:
@@ -98,8 +96,17 @@ class Order(models.Model):
 
         return list(unique_names)
 
+    def get_total_item_count(self):
+        """
+        Returns the total number of items in this order.
+        This sums up the quantity of all related OrderItems.
+        """
+        total_items = self.items.aggregate(total=models.Sum('quantity'))['total']
+        return total_items or 0  # Safely handles case with no related items
+
     def __str__(self):
         return f"Order {self.order_id} - {self.order_status.name if self.order_status else 'No Status'}"
+
 
 # 🧾 OrderItem model
 class OrderItem(models.Model):
