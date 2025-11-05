@@ -20,7 +20,8 @@ from .models import (
     UserReview,
     Review,
     MenuItem,
-    OpeningHour
+    OpeningHour,
+    FAQ
 )
 
 from .serializers import (
@@ -38,7 +39,8 @@ from .serializers import (
     MenuItemSearchSerializer,
     OpeningHourSerializer,
     RestaurantDetailSerializer,
-    MenuItemDetailSerializer
+    MenuItemDetailSerializer,
+    FAQSerializer
 )
 from .utils import send_order_confirmation_email
 
@@ -487,5 +489,23 @@ class MenuItemPriceRangeView(generics.ListAPIView):
         except DatabaseError:
             return Response(
                 {"error": "A database error occurred while retrieving menu items."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
+            
+class FAQListView(generics.ListAPIView):
+    """
+    API endpoint to retrieve a list of FAQs.
+    Supports pagination automatically if enabled in settings.py.
+    """
+    queryset = FAQ.objects.all()
+    serializer_class = FAQSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return self.list(request, *args, **kwargs)
+        except Exception as e:
+            return Response(
+                {"error": "An error occurred while fetching FAQs.", "details": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

@@ -10,7 +10,8 @@ from .models import (
     UserReview,
     Review,
     MenuItem,
-    OpeningHour
+    OpeningHour,
+    FAQ
 )
 
 class MenuCategorySerializer(serializers.ModelSerializer):
@@ -104,3 +105,9 @@ class MenuItemDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuItem
         fields = ['id', 'name', 'description', 'price', 'is_available']
+        
+        
+class FAQSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FAQ
+        fields = ['id', 'question', 'answer', 'created_at']
