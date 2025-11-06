@@ -46,13 +46,13 @@ class OrderStatusUpdateSerializer(serializers.Serializer):
     status = serializers.CharField()
 
     def validate(self, data):
-        # Validate order exists
+        # ✅ Validate order exists
         try:
             order = Order.objects.get(order_id=data['order_id'])
         except Order.DoesNotExist:
             raise serializers.ValidationError({"order_id": "Invalid order ID."})
 
-        # Validate status
+        # ✅ Validate status exists
         try:
             status_obj = OrderStatus.objects.get(name__iexact=data['status'])
         except OrderStatus.DoesNotExist:
@@ -66,7 +66,6 @@ class OrderStatusUpdateSerializer(serializers.Serializer):
         instance.order_status = validated_data['status_obj']
         instance.save()
         return instance
-
 
 class PaymentMethodSerializer(serializers.ModelSerializer):
     class Meta:
