@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Order
+from .models import Order, Coupon
 
 # Register your models here.
 
@@ -20,3 +20,13 @@ def mark_orders_processed(modeladmin, request, queryset):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'customer', 'status', 'created_at')  # adjust as per your model fields
     actions = [mark_orders_processed]
+    
+    
+@admin.register(Coupon)
+class CouponAdmin(admin.ModelAdmin):
+    list_display = ('code', 'discount_percentage', 'valid_from', 'valid_until', 'is_active')
+    list_filter = ('is_active', 'valid_from', 'valid_until')
+    search_fields = ('code',)
+
+    # ✅ Allow editing is_active directly from list view
+    list_editable = ('is_active',)

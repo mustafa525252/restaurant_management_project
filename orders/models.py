@@ -123,21 +123,24 @@ class OrderItem(models.Model):
 class Coupon(models.Model):
     code = models.CharField(max_length=50, unique=True)
     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2)
-    is_active = models.BooleanField(default=True)
-    valid_form = models.DateField()
+    is_active = models.BooleanField(default=True, help_text="Activate or deactivate this coupon")
+    valid_from = models.DateField()
     valid_until = models.DateField()
 
     class Meta:
         verbose_name = "Coupon"
         verbose_name_plural = "Coupons"
-        ordering = ['-valid_form']
+        ordering = ['-valid_from']
 
     def __str__(self):
         return f"{self.code} ({self.discount_percentage}% off)"
-    
+
     def is_valid(self):
+        """
+        Check if the coupon is currently valid based on date and activation status.
+        """
         today = timezone.now().date()
-        return self.is_active and self.valid_form <= today <= self.valid_until
+        return self.is_active and self.valid_from <= today <= self.valid_until
       
 class PaymentMethod(models.Model):
     name = models.CharField(
