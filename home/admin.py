@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Restaurant
+from .models import Restaurant, MenuItem
 
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
@@ -20,3 +20,21 @@ class RestaurantAdmin(admin.ModelAdmin):
 
     # Optional: Order results alphabetically by name
     ordering = ('name',)
+    
+@admin.register(MenuItem)
+class MenuItemAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'is_available', 'is_featured', 'discount_percentage')
+    list_filter = ('is_available', 'is_featured')
+    search_fields = ('name', 'description')
+
+    # ✅ Custom Action
+    @admin.action(description="Mark selected items as unavailable")
+    def make_unavailable(self, request, queryset):
+        """
+        Custom admin action to mark selected menu items as unavailable.
+        """
+        updated_count = queryset.update(is_available=False)
+        self.message_user(request, f"{updated_count} menu item(s) marked as unavailable.")
+
+    # ✅ Register the action
+    actions = ['make_unavailable']
