@@ -182,3 +182,34 @@ def is_valid_phone_number(phone_number):
 
     # Use fullmatch to ensure the entire string matches the pattern
     return bool(re.fullmatch(pattern, phone_number))
+
+def format_phone_number(phone_number: str) -> str:
+    """
+    Format a phone number into a consistent format: (XXX) XXX-XXXX
+    Example: '9876543210' → '(987) 654-3210'
+    
+    Handles invalid input gracefully by returning the original string.
+    """
+
+    try:
+        # Remove all non-digit characters
+        digits = re.sub(r'\D', '', phone_number)
+
+        # Validate length (assuming 10-digit format)
+        if len(digits) == 10:
+            formatted = f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+            return formatted
+
+        # Handle country code (like +91 for India)
+        elif len(digits) == 12 and digits.startswith('91'):
+            formatted = f"+91 {digits[2:7]}-{digits[7:]}"
+            return formatted
+
+        else:
+            # If unexpected length, return as-is
+            return phone_number
+
+    except Exception as e:
+        # Graceful fallback in case of invalid input
+        print(f"Error formatting phone number: {e}")
+        return phone_number
