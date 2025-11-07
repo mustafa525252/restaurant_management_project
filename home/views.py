@@ -509,3 +509,15 @@ class FAQListView(generics.ListAPIView):
                 {"error": "An error occurred while fetching FAQs.", "details": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+class AvailableMenuItemCountView(APIView):
+    """
+    API endpoint to return the total number of available menu items.
+    """
+
+    def get(self, request):
+        # Count only items that are available
+        total_available = MenuItem.objects.filter(is_available=True).count()
+        return Response(
+            {"total_menu_items": total_available},
+            status=status.HTTP_200_OK
+        )
