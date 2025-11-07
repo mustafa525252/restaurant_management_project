@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order, OrderStatus, PaymentMethod, Review
+from .models import Order, OrderStatus, PaymentMethod, Review, OrderItem
 
 
 class OrderStatusSerializer(serializers.ModelSerializer):
@@ -78,3 +78,21 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'user_name', 'rating', 'review_text', 'created_at']
+        
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'menu_item', 'quantity', 'price']
+
+
+class OrderSummarySerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(source='items.all', many=True, read_only=True)
+    total_price = serializers.SerializerMethodField()
+    status = serializers.CharField(source='order_status.name', read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ['order_id', 'status', 'total_price', 'items']
+
+    def get_total_price(self, obj):
+        return float(obj.calculate_total())

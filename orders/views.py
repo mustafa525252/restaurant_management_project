@@ -10,7 +10,8 @@ from .serializers import (
     OrderStatusSerializer,
     OrderStatusUpdateSerializer,
     PaymentMethodSerializer,
-    ReviewSerializer
+    ReviewSerializer,
+    OrderSummarySerializer
 )
 from django.db import DatabaseError
 from rest_framework.pagination import PageNumberPagination
@@ -188,3 +189,20 @@ class UserOrderHistoryView(generics.ListAPIView):
         Return all orders belonging to the authenticated user.
         """
         return Order.objects.filter(customer=self.request.user).order_by('-order_date')
+    
+class OrderSummaryView(generics.RetrieveAPIView):
+    serializer_class = OrderSummarySerializer
+    lookup_field = 'order_id'
+    queryset = Order.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        order_id = kwargs.get('order_id')
+        try:
+            order = Order.objects.get(order_id=order_id)
+        except Order.DoesNotExist:
+            return Response(
+                {"error": "Order not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = self.get_serializer(order)
+        return Response(serializer.data)
