@@ -9,6 +9,7 @@ from django.db import DatabaseError, IntegrityError
 from django.core.mail import BadHeaderError, SMTPException
 import logging
 from rest_framework.exceptions import NotFound
+from home.utils import calculate_average_rating
 from .models import (
     MenuCategory, 
     Table, 
@@ -521,3 +522,8 @@ class AvailableMenuItemCountView(APIView):
             {"total_menu_items": total_available},
             status=status.HTTP_200_OK
         )
+        
+def get_restaurant_average_rating(restaurant_id):
+    reviews = UserReview.objects.filter(menu_item__id=restaurant_id)
+    avg = calculate_average_rating(reviews)
+    return avg
