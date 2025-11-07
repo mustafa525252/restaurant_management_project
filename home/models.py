@@ -89,7 +89,15 @@ class MenuItem(models.Model):
     is_featured = models.BooleanField(default=False, help_text="Mark as featured dish")
     is_available = models.BooleanField(default=True, help_text="Indicates if the item is currently available")
 
-    # 🆕 New field for discounts
+    # 🆕 Cuisine field
+    cuisine = models.CharField(
+        max_length=50,
+        help_text="Type of cuisine (e.g., Italian, Indian, Chinese, Mexican, etc.)",
+        blank=True,
+        null=True
+    )
+
+    # 🆕 Discount field
     discount_percentage = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -97,12 +105,12 @@ class MenuItem(models.Model):
         help_text="Discount percentage (0-100)"
     )
 
-    objects = MenuItemManager()  # custom manager, if defined
+    objects = MenuItemManager()  # custom manager
 
     def __str__(self):
         return f"{self.name} ({'Available' if self.is_available else 'Unavailable'})"
 
-    # 🧮 New method to calculate final price after discount
+    # 🧮 Calculate final price after discount
     def get_final_price(self):
         """
         Calculate the final price of the menu item after applying discount (if any).
@@ -113,8 +121,18 @@ class MenuItem(models.Model):
 
         discount_amount = (self.price * self.discount_percentage) / Decimal('100')
         final_price = self.price - discount_amount
-        # Round to 2 decimal places
         return float(final_price.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+
+    # 🍽️ NEW METHOD: Filter items by cuisine type
+    @classmethod
+    def get_items_by_cuisine(cls, cuisine_type):
+        """
+        Returns a QuerySet of available menu items filtered by the given cuisine type.
+        Example:
+            MenuItem.get_items_by_cuisine('Italian')
+        """
+        return cls.objects.filter(cuisine__iexact=cuisine_type, is_available=True)
+
 
 
 class DailySpecial(models.Model):
