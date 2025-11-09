@@ -527,3 +527,17 @@ def get_restaurant_average_rating(restaurant_id):
     reviews = UserReview.objects.filter(menu_item__id=restaurant_id)
     avg = calculate_average_rating(reviews)
     return avg
+
+class MenuItemListAPIView(generics.ListAPIView):
+    """
+    API endpoint to list all menu items.
+    Supports optional filtering by category (?category=CategoryName).
+    """
+    serializer_class = MenuItemSerializer
+
+    def get_queryset(self):
+        queryset = MenuItem.objects.all()
+        category_name = self.request.query_params.get('category', None)
+        if category_name:
+            queryset = queryset.filter(category__name__iexact=category_name)
+        return queryset
