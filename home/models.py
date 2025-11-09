@@ -105,6 +105,13 @@ class MenuItem(models.Model):
         help_text="Discount percentage (0-100)"
     )
 
+    # 🆕 Calories field (optional)
+    calories = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Calorie count (optional)"
+    )
+
     objects = MenuItemManager()  # custom manager
 
     def __str__(self):
