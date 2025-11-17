@@ -82,7 +82,7 @@ class MenuItemManager(models.Manager):
 
 # ✅ Single correct MenuItem model
 class MenuItem(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=150)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     ingredients = models.ManyToManyField('Ingredient', related_name="menu_items", blank=True)
