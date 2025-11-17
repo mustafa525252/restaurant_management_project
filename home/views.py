@@ -44,6 +44,7 @@ from .serializers import (
     FAQSerializer
 )
 from .utils import send_order_confirmation_email
+from home import serializers
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -541,3 +542,9 @@ class MenuItemListAPIView(generics.ListAPIView):
         if category_name:
             queryset = queryset.filter(category__name__iexact=category_name)
         return queryset
+    
+class MenuCategoryViewSet(viewsets.ViewSet):
+    def list(self, request):
+        categories = MenuCategory.objects.all()
+        data = serializers.serialize('json', categories)
+        return Response({"categories": data})

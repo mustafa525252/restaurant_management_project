@@ -2,7 +2,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
-
+from home.models import MenuItem
+from home.serializers import MenuItemSerializer
 from .models import Item
 from .serializers import ItemSerializer
 
@@ -28,7 +29,6 @@ class ItemView(APIView):
 class MenuItemView(viewsets.ModelViewSet):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
-
     def update(self, request, *args, **kwargs):
         try:
             return super().update(request, *args, **kwargs)
