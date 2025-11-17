@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Restaurant, MenuItem
+from .models import Restaurant, MenuItem, Table
 
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
@@ -38,3 +38,5 @@ class MenuItemAdmin(admin.ModelAdmin):
 
     # ✅ Register the action
     actions = ['make_unavailable']
+    
+admin.site.register(Table)
