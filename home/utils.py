@@ -237,3 +237,15 @@ def calculate_average_rating(reviews_queryset):
         # Log the error in real projects (e.g., using logging)
         print(f"Error calculating average rating: {e}")
         return 0.0
+    
+def is_valid_reservation_time(reservation_datetime: datetime) -> bool:
+    weekday = reservation_datetime.weekday()
+
+    try:
+        hours = DailyOperatingHours.objects.get(day_of_week=weekday)
+    except DailyOperatingHours.DoesNotExist:
+        return False
+
+    requested_time = reservation_datetime.time()
+
+    return hours.opening_time < requested_time < hours.closing_time
