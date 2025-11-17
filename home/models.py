@@ -164,7 +164,7 @@ class DailySpecial(models.Model):
         return specials.order_by('?').first()
 
 class MenuCategory(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=150, unique=True)
 
     class Meta:
         verbose_name = "Menu Category"
