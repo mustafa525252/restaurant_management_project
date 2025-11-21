@@ -6,6 +6,7 @@ from home.models import MenuItem, Cuisine
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import re
 from home.models import DailyOperatingHours
+from home.models import Table
 def send_order_confirmation_email(order_id, customer_email, customer_name, order_items, total_amount):
     """
     Sends an order confirmation email to the customer.
@@ -249,3 +250,11 @@ def is_valid_reservation_time(reservation_datetime: datetime) -> bool:
     requested_time = reservation_datetime.time()
 
     return hours.opening_time < requested_time < hours.closing_time
+
+def get_available_tables_by_capacity(num_guests):
+    """
+    Returns a QuerySet of tables that are:
+    - Available (is_available=True)
+    - Have capacity >= num_guests
+    """
+    return Table.objects.filter(is_available=True, capacity__gte=num_guests)
