@@ -112,9 +112,19 @@ class MenuItem(models.Model):
         help_text="Calorie count (optional)"
     )
 
+    # 🆕 NEW FIELD: Allergens
+    allergens = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Comma-separated allergens (e.g., gluten, nuts, dairy)"
+    )
+
     objects = MenuItemManager()  # custom manager
 
     def __str__(self):
+        # Optionally show allergens in admin
+        if self.allergens:
+            return f"{self.name} ({'Available' if self.is_available else 'Unavailable'}) - Allergens: {self.allergens}"
         return f"{self.name} ({'Available' if self.is_available else 'Unavailable'})"
 
     # 🧮 Calculate final price after discount
@@ -139,8 +149,6 @@ class MenuItem(models.Model):
             MenuItem.get_items_by_cuisine('Italian')
         """
         return cls.objects.filter(cuisine__iexact=cuisine_type, is_available=True)
-
-
 
 class DailySpecial(models.Model):
     name = models.CharField(max_length=100)
