@@ -548,3 +548,10 @@ class MenuCategoryViewSet(viewsets.ViewSet):
         categories = MenuCategory.objects.all()
         data = serializers.serialize('json', categories)
         return Response({"categories": data})
+    
+class AvailableTableListAPIView(generics.ListAPIView):
+    serializer_class = TableSerializer
+
+    def get_queryset(self):
+        # Return only available tables
+        return Table.objects.filter(is_available=True)

@@ -26,7 +26,8 @@ from .views import (
     AvailableMenuItemCountView,
     ReviewListView,
     OrderSummaryView,
-    MenuItemListAPIView
+    MenuItemListAPIView,
+    AvailableTableListAPIView
 )
 
 urlpatterns = [
@@ -60,4 +61,5 @@ urlpatterns = [
     path('reviews/', ReviewListView.as_view(), name='review-list'),
     path('orders/<str:order_id>/summary/', OrderSummaryView.as_view(), name='order-summary'),
     path('menu-items/', MenuItemListAPIView.as_view(), name='menu-item-list'),
+    path('api/tables/', AvailableTableListAPIView.as_view(), name='available-tables'),
 ]
