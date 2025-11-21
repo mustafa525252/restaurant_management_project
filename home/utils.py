@@ -258,3 +258,24 @@ def get_available_tables_by_capacity(num_guests):
     - Have capacity >= num_guests
     """
     return Table.objects.filter(is_available=True, capacity__gte=num_guests)
+
+def is_restaurant_open():
+    """
+    Returns True if the restaurant is currently open based on hardcoded hours.
+    Example hours: Monday–Friday, 9:00 AM to 10:00 PM.
+    Weekends closed.
+    """
+    now = datetime.datetime.now()
+    current_day = now.weekday()  # Monday = 0, Sunday = 6
+    current_time = now.time()
+
+    # Hardcoded schedule: Monday–Friday, 09:00–22:00
+    opening_time = datetime.time(hour=9, minute=0)
+    closing_time = datetime.time(hour=22, minute=0)
+
+    # Closed on weekends
+    if current_day >= 5:  # 5 = Saturday, 6 = Sunday
+        return False
+
+    # Check if current time is within the operating hours
+    return opening_time <= current_time <= closing_time
