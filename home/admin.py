@@ -39,4 +39,11 @@ class MenuItemAdmin(admin.ModelAdmin):
     # ✅ Register the action
     actions = ['make_unavailable']
     
-admin.site.register(Table)
+@admin.register(Table)
+class TableAdmin(admin.ModelAdmin):
+    list_display = ("table_number", "capacity", "is_available")
+    list_filter = ("is_available", "capacity")
+    search_fields = ("table_number",)
+
+    # Optional: ordering for easier viewing
+    ordering = ("table_number",)
