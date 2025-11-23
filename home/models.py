@@ -357,9 +357,14 @@ class FAQ(models.Model):
         return self.question
     
 class Table(models.Model):
-    table_number = models.PositiveIntegerField(unique=True, help_text="Unique table number (e.g., 1, 2, 3)")
-    capacity = models.PositiveIntegerField(help_text="Number of people that can sit at this table")
-    is_available = models.BooleanField(default=True, help_text="Indicates if the table is currently available")
+    # Unique table number, such as 1, 2, 3...
+    table_number = models.IntegerField(unique=True)
+
+    # How many people this table can accommodate
+    capacity = models.IntegerField()
+
+    # Track if the table is free or reserved
+    is_available = models.BooleanField(default=True)
 
     def __str__(self):
         return f"Table {self.table_number} (Capacity: {self.capacity})"
