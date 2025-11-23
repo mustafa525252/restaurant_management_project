@@ -357,13 +357,8 @@ class FAQ(models.Model):
         return self.question
     
 class Table(models.Model):
-    # Unique table number, such as 1, 2, 3...
     table_number = models.IntegerField(unique=True)
-
-    # How many people this table can accommodate
     capacity = models.IntegerField()
-
-    # Track if the table is free or reserved
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
