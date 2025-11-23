@@ -1,6 +1,9 @@
 from django.contrib import admin
 from .models import Restaurant, MenuItem, Table
 
+# ------------------------------------------
+# Restaurant Admin
+# ------------------------------------------
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
     """
@@ -14,18 +17,23 @@ class RestaurantAdmin(admin.ModelAdmin):
     # Enable search by name or address
     search_fields = ('name', 'address')
 
-    # Optional: Add filter if you have an 'is_active' field in the model
-    # Example: list_filter = ('is_active',)
-    # (Commented out here since your Restaurant model doesn’t have this field yet)
+    # ⭐ Optional: If Restaurant has created/updated timestamps
+    # readonly_fields = ('created_at', 'updated_at')
 
     # Optional: Order results alphabetically by name
     ordering = ('name',)
-    
+
+# ------------------------------------------
+# MenuItem Admin
+# ------------------------------------------
 @admin.register(MenuItem)
 class MenuItemAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'is_available', 'is_featured', 'discount_percentage')
     list_filter = ('is_available', 'is_featured')
     search_fields = ('name', 'description')
+
+    # ⭐ Optional: editable fields directly in list view
+    list_editable = ('is_available', 'is_featured')
 
     # ✅ Custom Action
     @admin.action(description="Mark selected items as unavailable")
@@ -36,9 +44,12 @@ class MenuItemAdmin(admin.ModelAdmin):
         updated_count = queryset.update(is_available=False)
         self.message_user(request, f"{updated_count} menu item(s) marked as unavailable.")
 
-    # ✅ Register the action
+    # Register the action
     actions = ['make_unavailable']
-    
+
+# ------------------------------------------
+# Table Admin
+# ------------------------------------------
 @admin.register(Table)
 class TableAdmin(admin.ModelAdmin):
     list_display = ("table_number", "capacity", "is_available")
@@ -47,3 +58,6 @@ class TableAdmin(admin.ModelAdmin):
 
     # Optional: ordering for easier viewing
     ordering = ("table_number",)
+
+    # ⭐ Optional: make availability editable from list view
+    # list_editable = ("is_available",)
