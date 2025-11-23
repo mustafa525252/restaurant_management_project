@@ -59,6 +59,9 @@ class Order(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
+    # ✅ New field for customer instructions / special notes
+    customer_notes = models.TextField(blank=True, null=True)
+
     def calculate_total(self):
         total = Decimal('0.00')
         for item in self.items.all():
@@ -76,7 +79,6 @@ class Order(models.Model):
         total_items = self.items.aggregate(total=models.Sum('quantity'))['total']
         return total_items or 0
 
-    # 💰 New method: total revenue from all completed orders
     @classmethod
     def calculate_total_revenue(cls):
         """
@@ -100,6 +102,7 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.order_id} - {self.order_status.name if self.order_status else 'No Status'}"
+
 
 # 🧾 OrderItem model
 class OrderItem(models.Model):
