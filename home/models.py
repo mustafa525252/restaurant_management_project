@@ -370,3 +370,9 @@ class Table(models.Model):
 
     def __str__(self):
         return f"Table {self.table_number} (Capacity: {self.capacity})"
+    
+class Cuisine(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
