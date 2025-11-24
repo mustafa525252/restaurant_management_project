@@ -25,6 +25,12 @@ class Restaurant(models.Model):
         default="11:00 AM - 11:00 PM (EST)"
     )
 
+    # 👤 Maximum seating capacity
+    capacity = models.IntegerField(
+        default=0,
+        help_text="Maximum number of guests the restaurant can accommodate."
+    )
+
     def __str__(self):
         return self.name
 
@@ -35,6 +41,7 @@ class Restaurant(models.Model):
         """
         from home.models import MenuItem  # local import to prevent circular import
         return MenuItem.objects.count()
+
 
 class Table(models.Model):
     table_number = models.CharField(max_length=10, unique=True)
