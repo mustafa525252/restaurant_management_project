@@ -96,7 +96,7 @@ class MenuItem(models.Model):
     is_featured = models.BooleanField(default=False, help_text="Mark as featured dish")
     is_available = models.BooleanField(default=True, help_text="Indicates if the item is currently available")
 
-    # 🆕 UPDATED CUISINE FIELD (ForeignKey → Cuisine model)
+    # Cuisine field
     cuisine = models.ForeignKey(
         'Cuisine',
         on_delete=models.SET_NULL,
@@ -106,7 +106,7 @@ class MenuItem(models.Model):
         help_text="Select the cuisine category for this dish"
     )
 
-    # 🆕 Discount field
+    # Discount field
     discount_percentage = models.DecimalField(
         max_digits=5,
         decimal_places=2,
@@ -114,18 +114,24 @@ class MenuItem(models.Model):
         help_text="Discount percentage (0-100)"
     )
 
-    # 🆕 Calories field (optional)
+    # Calories field
     calories = models.IntegerField(
         null=True,
         blank=True,
         help_text="Calorie count (optional)"
     )
 
-    # 🆕 Allergens
+    # Allergens
     allergens = models.TextField(
         blank=True,
         null=True,
         help_text="Comma-separated allergens (e.g., gluten, nuts, dairy)"
+    )
+
+    # 🆕 Gluten-Free field
+    is_gluten_free = models.BooleanField(
+        default=False,
+        help_text="Indicates if the menu item is gluten-free."
     )
 
     objects = MenuItemManager()  # custom manager
@@ -135,11 +141,8 @@ class MenuItem(models.Model):
             return f"{self.name} ({'Available' if self.is_available else 'Unavailable'}) - Allergens: {self.allergens}"
         return f"{self.name} ({'Available' if self.is_available else 'Unavailable'})"
 
-    # 🧮 Calculate final price after discount
+    # Calculate final price after discount
     def get_final_price(self):
-        """
-        Calculate the final price after applying discount (if any).
-        """
         if not self.discount_percentage or self.discount_percentage <= 0:
             return float(self.price)
 
@@ -147,12 +150,9 @@ class MenuItem(models.Model):
         final_price = self.price - discount_amount
         return float(final_price.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
 
-    # 🍽️ Filter items by cuisine type
+    # Filter items by cuisine
     @classmethod
     def get_items_by_cuisine(cls, cuisine_type):
-        """
-        Returns available items filtered by the given cuisine name.
-        """
         return cls.objects.filter(
             cuisine__name__iexact=cuisine_type,
             is_available=True
