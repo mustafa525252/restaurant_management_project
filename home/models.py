@@ -383,3 +383,30 @@ class Cuisine(models.Model):
 
     def __str__(self):
         return self.name
+
+class DeliveryZone(models.Model):
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+        help_text="Name of the delivery zone (e.g., Downtown, Northside)"
+    )
+
+    min_order_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="Minimum order value required for delivery in this zone"
+    )
+
+    delivery_fee = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="Delivery fee for this zone"
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Whether this delivery zone is currently active"
+    )
+
+    def __str__(self):
+        return self.name
