@@ -22,7 +22,8 @@ from .models import (
     Review,
     MenuItem,
     OpeningHour,
-    FAQ
+    FAQ,
+    Cuisine
 )
 
 from .serializers import (
@@ -41,7 +42,8 @@ from .serializers import (
     OpeningHourSerializer,
     RestaurantDetailSerializer,
     MenuItemDetailSerializer,
-    FAQSerializer
+    FAQSerializer,
+    CuisineSerializer
 )
 from .utils import send_order_confirmation_email
 from home import serializers
@@ -555,3 +557,7 @@ class AvailableTableListAPIView(generics.ListAPIView):
     def get_queryset(self):
         # Return only available tables
         return Table.objects.filter(is_available=True)
+    
+class CuisineListView(generics.ListAPIView):
+    queryset = Cuisine.objects.all()
+    serializer_class = CuisineSerializer

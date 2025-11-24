@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum 
 import random
 from django.contrib.auth.models import User
 from datetime import datetime

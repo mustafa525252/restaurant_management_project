@@ -11,7 +11,8 @@ from .models import (
     Review,
     MenuItem,
     OpeningHour,
-    FAQ
+    FAQ,
+    Cuisine
 )
 
 class MenuCategorySerializer(serializers.ModelSerializer):
@@ -111,3 +112,8 @@ class FAQSerializer(serializers.ModelSerializer):
     class Meta:
         model = FAQ
         fields = ['id', 'question', 'answer', 'created_at']
+        
+class CuisineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cuisine
+        fields = ['id', 'name']
