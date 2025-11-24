@@ -141,13 +141,24 @@ class Order(models.Model):
 # 🧾 OrderItem model
 class OrderItem(models.Model):
     order = models.ForeignKey(
-        Order, on_delete=models.CASCADE, related_name='items'
+        Order,
+        on_delete=models.CASCADE,
+        related_name='items'
     )
     menu_item = models.ForeignKey(
-        MenuItem, on_delete=models.CASCADE, related_name='order_items'
+        MenuItem,
+        on_delete=models.CASCADE,
+        related_name='order_items'
     )
+
+    # Quantity of this menu item
     quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    # Store the menu item's price at the time of order
+    price_at_time_of_order = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
 
     def __str__(self):
         return f"{self.quantity} × {self.menu_item.name} (Order {self.order.order_id})"
@@ -155,6 +166,7 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = "Order Item"
         verbose_name_plural = "Order Items"
+
 
 
 class Coupon(models.Model):
