@@ -368,10 +368,15 @@ class FAQ(models.Model):
 class Table(models.Model):
     table_number = models.IntegerField(unique=True)
     capacity = models.IntegerField()
+    max_seats = models.IntegerField(
+        default=4,
+        help_text="Maximum number of customers that can sit at this table"
+    )
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Table {self.table_number} (Capacity: {self.capacity})"
+        return f"Table {self.table_number} (Capacity: {self.capacity}, Max Seats: {self.max_seats})"
+
     
 class Cuisine(models.Model):
     name = models.CharField(max_length=100, unique=True)
