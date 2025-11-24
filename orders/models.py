@@ -45,29 +45,37 @@ class OrderStatus(models.Model):
     def __str__(self):
         return self.name
 
-
 class Order(models.Model):
     customer = models.ForeignKey(
         'auth.User', on_delete=models.CASCADE, related_name='orders'
     )
     order_date = models.DateTimeField(auto_now_add=True)
+
+    # Status is stored as a FK to OrderStatus model
     order_status = models.ForeignKey(
         'OrderStatus', on_delete=models.SET_NULL, null=True, blank=True
     )
+
     order_id = models.CharField(max_length=12, unique=True, editable=False)
     name = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
-    # ✅ New field for customer instructions / special notes
+    # Optional notes from customer
     customer_notes = models.TextField(blank=True, null=True)
 
+    # ---------------------------------------------------------
+    # 🔢 Calculate total for this order (sum of all items)
+    # ---------------------------------------------------------
     def calculate_total(self):
         total = Decimal('0.00')
         for item in self.items.all():
             total += item.price * item.quantity
         return total.quantize(Decimal('0.01'))
 
+    # ---------------------------------------------------------
+    # 🏷️ Get unique item names from nested items
+    # ---------------------------------------------------------
     def get_unique_item_names(self):
         unique_names = set()
         for order_item in self.items.all():
@@ -75,10 +83,16 @@ class Order(models.Model):
                 unique_names.add(order_item.menu_item.name)
         return list(unique_names)
 
+    # ---------------------------------------------------------
+    # 🧮 Count total number of items in this order
+    # ---------------------------------------------------------
     def get_total_item_count(self):
         total_items = self.items.aggregate(total=models.Sum('quantity'))['total']
         return total_items or 0
 
+    # ---------------------------------------------------------
+    # 💰 Calculate revenue from all completed orders
+    # ---------------------------------------------------------
     @classmethod
     def calculate_total_revenue(cls):
         """
@@ -100,6 +114,26 @@ class Order(models.Model):
 
         return total or Decimal('0.00')
 
+    # ---------------------------------------------------------
+    # ✅ NEW METHOD: Mark this order as COMPLETED
+    # ---------------------------------------------------------
+    def mark_as_completed(self):
+        """
+        Updates the order's status to 'Completed' and saves the order.
+        Returns True if successful, False if 'Completed' status does not exist.
+        """
+        from .models import OrderStatus  # avoid circular import
+
+        completed_status = OrderStatus.objects.filter(name__iexact='completed').first()
+        if completed_status:
+            self.order_status = completed_status
+            self.save()
+            return True
+        return False
+
+    # ---------------------------------------------------------
+    # 📌 String Representation
+    # ---------------------------------------------------------
     def __str__(self):
         return f"Order {self.order_id} - {self.order_status.name if self.order_status else 'No Status'}"
 
