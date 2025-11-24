@@ -96,12 +96,14 @@ class MenuItem(models.Model):
     is_featured = models.BooleanField(default=False, help_text="Mark as featured dish")
     is_available = models.BooleanField(default=True, help_text="Indicates if the item is currently available")
 
-    # 🆕 Cuisine field
-    cuisine = models.CharField(
-        max_length=50,
-        help_text="Type of cuisine (e.g., Italian, Indian, Chinese, Mexican, etc.)",
+    # 🆕 UPDATED CUISINE FIELD (ForeignKey → Cuisine model)
+    cuisine = models.ForeignKey(
+        'Cuisine',
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
-        null=True
+        related_name='menu_items',
+        help_text="Select the cuisine category for this dish"
     )
 
     # 🆕 Discount field
@@ -119,7 +121,7 @@ class MenuItem(models.Model):
         help_text="Calorie count (optional)"
     )
 
-    # 🆕 NEW FIELD: Allergens
+    # 🆕 Allergens
     allergens = models.TextField(
         blank=True,
         null=True,
@@ -129,7 +131,6 @@ class MenuItem(models.Model):
     objects = MenuItemManager()  # custom manager
 
     def __str__(self):
-        # Optionally show allergens in admin
         if self.allergens:
             return f"{self.name} ({'Available' if self.is_available else 'Unavailable'}) - Allergens: {self.allergens}"
         return f"{self.name} ({'Available' if self.is_available else 'Unavailable'})"
@@ -137,8 +138,7 @@ class MenuItem(models.Model):
     # 🧮 Calculate final price after discount
     def get_final_price(self):
         """
-        Calculate the final price of the menu item after applying discount (if any).
-        Returns the price as a float rounded to 2 decimal places.
+        Calculate the final price after applying discount (if any).
         """
         if not self.discount_percentage or self.discount_percentage <= 0:
             return float(self.price)
@@ -147,15 +147,17 @@ class MenuItem(models.Model):
         final_price = self.price - discount_amount
         return float(final_price.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
 
-    # 🍽️ NEW METHOD: Filter items by cuisine type
+    # 🍽️ Filter items by cuisine type
     @classmethod
     def get_items_by_cuisine(cls, cuisine_type):
         """
-        Returns a QuerySet of available menu items filtered by the given cuisine type.
-        Example:
-            MenuItem.get_items_by_cuisine('Italian')
+        Returns available items filtered by the given cuisine name.
         """
-        return cls.objects.filter(cuisine__iexact=cuisine_type, is_available=True)
+        return cls.objects.filter(
+            cuisine__name__iexact=cuisine_type,
+            is_available=True
+        )
+
 
 class DailySpecial(models.Model):
     name = models.CharField(max_length=100)
