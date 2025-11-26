@@ -3,6 +3,7 @@ from . import views
 from .views import (
     MenuCategoryListCreateView,
     MenuCategoryDetailView,
+    MenuItemReviewCreateView,
     TableDetailAPIView,
     AvailableTablesAPIView,
     ContactFormSubmissionView,
@@ -63,4 +64,5 @@ urlpatterns = [
     path('menu-items/', MenuItemListAPIView.as_view(), name='menu-item-list'),
     path('api/tables/', AvailableTableListAPIView.as_view(), name='available-tables'),
     path('api/cuisines/', views.CuisineListView.as_view(), name='cuisine-list'),
+    ath('menu-items/reviews/create/', MenuItemReviewCreateView.as_view(), name="create-menu-item-review"),
 ]

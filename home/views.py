@@ -23,7 +23,8 @@ from .models import (
     MenuItem,
     OpeningHour,
     FAQ,
-    Cuisine
+    Cuisine,
+    UserReviews
 )
 
 from .serializers import (
@@ -561,3 +562,31 @@ class AvailableTableListAPIView(generics.ListAPIView):
 class CuisineListView(generics.ListAPIView):
     queryset = Cuisine.objects.all()
     serializer_class = CuisineSerializer
+    
+class MenuItemReviewCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        menu_item_id = request.data.get("menu_item_id")
+        rating = request.data.get("rating")
+        comment = request.data.get("comment", "")
+
+        # Validate menu_item exists
+        try:
+            menu_item = MenuItem.objects.get(id=menu_item_id)
+        except MenuItem.DoesNotExist:
+            return Response(
+                {"error": "Menu item not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Create review
+        review = UserReviews.objects.create(
+            user=request.user,
+            menu_item=menu_item,
+            rating=rating,
+            comment=comment
+        )
+
+        serializer = UserReviewSerializer(review)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

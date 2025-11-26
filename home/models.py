@@ -191,7 +191,7 @@ class MenuCategory(models.Model):
     def __str__(self):
         return self.name
     
-class UserReview(models.Model):
+class UserReviews(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE, related_name='reviews')
     rating = models.IntegerField()
