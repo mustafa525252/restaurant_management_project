@@ -7,6 +7,10 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import re
 from home.models import DailyOperatingHours
 from home.models import Table
+import string
+import random
+from home.models import Reservation
+
 def send_order_confirmation_email(order_id, customer_email, customer_name, order_items, total_amount):
     """
     Sends an order confirmation email to the customer.
@@ -279,3 +283,13 @@ def is_restaurant_open():
 
     # Check if current time is within the operating hours
     return opening_time <= current_time <= closing_time
+
+
+
+def generate_reservation_confirmation_number(length=10):
+    characters = string.ascii_uppercase + string.digits
+
+    while True:
+        code = ''.join(random.choices(characters, k=length))
+        if not Reservation.objects.filter(confirmation_number=code).exists():
+            return code

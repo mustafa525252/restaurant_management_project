@@ -317,14 +317,12 @@ class DailySpecial(models.Model):
         return f"{self.menu_item.name} - Special for {self.date}"
 
     
-# 🧠 Step 1: Custom Manager
 class ReservationManager(models.Manager):
     def get_upcoming_reservations(self):
         now = timezone.now()
-        return self.filter(reservation_datetime__gt=now)
+        return self.filter(start_time__gt=now)
 
 
-# 🏨 Step 2: Model using the Manager
 class Reservation(models.Model):
     customer_name = models.CharField(max_length=100)
     table_number = models.IntegerField()
@@ -332,6 +330,14 @@ class Reservation(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     special_requests = models.TextField(blank=True, null=True)
+
+    # 🆕 Add confirmation number
+    confirmation_number = models.CharField(
+        max_length=20,
+        unique=True,
+        blank=True,
+        help_text="Unique reservation confirmation code"
+    )
 
     # Attach custom manager
     objects = ReservationManager()
@@ -341,6 +347,12 @@ class Reservation(models.Model):
 
     def __str__(self):
         return f"{self.customer_name} - Table {self.table_number} ({self.start_time.strftime('%Y-%m-%d %H:%M')})"
+
+    # 🆕 Auto-generate confirmation number
+    def save(self, *args, **kwargs):
+        if not self.confirmation_number:
+            self.confirmation_number = generate_reservation_confirmation_number()
+        super().save(*args, **kwargs)
 
     @classmethod
     def get_available_slots(cls, start_datetime, end_datetime, table_number, slot_duration=timedelta(hours=1)):
