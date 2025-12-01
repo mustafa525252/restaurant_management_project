@@ -158,6 +158,11 @@ class MenuItem(models.Model):
             is_available=True
         )
 
+    # 🆕 NEW — Check if this item is today's daily special
+    def is_daily_special(self):
+        today = timezone.now().date()
+        return DailySpecial.objects.filter(menu_item=self, date=today).exists()
+
 
 class DailySpecial(models.Model):
     name = models.CharField(max_length=100)
@@ -292,13 +297,25 @@ class NutritionalInformation(models.Model):
         return f"{self.menu_item.name} - {self.calories} kcal"
     
     
-class DailySpecialManager(models.Manager):
-    def upcoming(self):
-        """
-        Returns only the DailySpecials scheduled for today or in the future.
-        """
-        today = datetime.date.today()
-        return self.filter(date__gte=today)
+class DailySpecial(models.Model):
+    menu_item = models.ForeignKey(
+        'MenuItem',
+        on_delete=models.CASCADE,
+        related_name='daily_specials'
+    )
+    date = models.DateField()
+
+    # Attach your custom manager
+    objects = DailySpecialManager()
+
+    class Meta:
+        unique_together = (('menu_item', 'date'),)
+        verbose_name = "Daily Special"
+        verbose_name_plural = "Daily Specials"
+
+    def __str__(self):
+        return f"{self.menu_item.name} - Special for {self.date}"
+
     
 # 🧠 Step 1: Custom Manager
 class ReservationManager(models.Manager):

@@ -59,10 +59,10 @@ urlpatterns = [
     path('menu-items/availability/', MenuItemAvailabilityListView.as_view(), name='menuitem-availability-list'),
     path('faqs/', FAQListView.as_view(), name='faq-list'),
     path('menu-items/available-count/', AvailableMenuItemCountView.as_view(), name='available-menuitem-count'),
-    path('reviews/', ReviewListView.as_view(), name='review-list'),
-    path('orders/<str:order_id>/summary/', OrderSummaryView.as_view(), name='order-summary'),
+    path('reviews/', views.ReviewListView.as_view(), name='review-list'),
+    path('orders/<str:order_id>/summary/', views.OrderSummaryView.as_view(), name='order-summary'),
     path('menu-items/', MenuItemListAPIView.as_view(), name='menu-item-list'),
     path('api/tables/', AvailableTableListAPIView.as_view(), name='available-tables'),
     path('api/cuisines/', views.CuisineListView.as_view(), name='cuisine-list'),
-    ath('menu-items/reviews/create/', MenuItemReviewCreateView.as_view(), name="create-menu-item-review"),
+    path('menu-items/reviews/create/', MenuItemReviewCreateView.as_view(), name="create-menu-item-review"),
 ]
