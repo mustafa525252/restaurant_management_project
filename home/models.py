@@ -7,6 +7,8 @@ from datetime import timedelta
 from django.db.models import Q
 from decimal import Decimal, ROUND_HALF_UP
 from django.utils import timezone
+from home.utils import generate_reservation_confirmation_number
+
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=255)
@@ -295,6 +297,9 @@ class NutritionalInformation(models.Model):
 
     def __str__(self):
         return f"{self.menu_item.name} - {self.calories} kcal"
+
+def DailySpecialManager():
+    raise NotImplementedError
     
     
 class DailySpecial(models.Model):

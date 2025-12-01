@@ -1,7 +1,15 @@
 from rest_framework import generics
-from .models import Review
-from .serializers import ReviewSerializer
-from .pagination import ReviewPagination
+from .models import (
+    Review,
+    Feedback,
+)
+from .serializers import (
+    ReviewSerializer,
+    FeedbackSerializer
+)
+from .pagination import (
+    ReviewPagination
+)
 
 class ReviewListView(generics.ListAPIView):
     """
@@ -10,3 +18,8 @@ class ReviewListView(generics.ListAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     pagination_class = ReviewPagination
+    
+    
+class FeedbackListAPIView(generics.ListAPIView):
+    queryset = Feedback.objects.all()
+    serializer_class = FeedbackSerializer
