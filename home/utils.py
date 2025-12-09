@@ -293,3 +293,6 @@ def generate_reservation_confirmation_number(length=10):
         code = ''.join(random.choices(characters, k=length))
         if not Reservation.objects.filter(confirmation_number=code).exists():
             return code
+        
+def format_currency(amount):
+    return f"${amount:.2f}"
