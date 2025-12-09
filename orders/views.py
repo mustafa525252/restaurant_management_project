@@ -3,7 +3,8 @@ from .models import (
     Order,
     OrderStatus,
     PaymentMethod,
-    Review
+    Review,
+    Table
 )
 from .serializers import (
     OrderSerializer,
@@ -11,7 +12,8 @@ from .serializers import (
     OrderStatusUpdateSerializer,
     PaymentMethodSerializer,
     ReviewSerializer,
-    OrderSummarySerializer
+    OrderSummarySerializer,
+    TableSerializer
 )
 from django.db import DatabaseError
 from rest_framework.pagination import PageNumberPagination
@@ -206,3 +208,7 @@ class OrderSummaryView(generics.RetrieveAPIView):
             )
         serializer = self.get_serializer(order)
         return Response(serializer.data)
+    
+class TableListView(generics.ListAPIView):
+    queryset = Table.objects.all()
+    serializer_class = TableSerializer
