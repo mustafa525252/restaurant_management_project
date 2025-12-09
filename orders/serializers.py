@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Order, OrderStatus, PaymentMethod, Review, OrderItem
-
+from .models import Table
 
 class OrderStatusSerializer(serializers.ModelSerializer):
     status = serializers.CharField(source='order_status.name', read_only=True)
@@ -96,3 +96,8 @@ class OrderSummarySerializer(serializers.ModelSerializer):
 
     def get_total_price(self, obj):
         return float(obj.calculate_total())
+    
+class TableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = '__all__'
