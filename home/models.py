@@ -94,11 +94,27 @@ class MenuItem(models.Model):
     name = models.CharField(max_length=150)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    ingredients = models.ManyToManyField('Ingredient', related_name="menu_items", blank=True)
-    is_featured = models.BooleanField(default=False, help_text="Mark as featured dish")
-    is_available = models.BooleanField(default=True, help_text="Indicates if the item is currently available")
 
-    # Cuisine field
+    # Ingredient relation
+    ingredients = models.ManyToManyField(
+        'Ingredient',
+        related_name="menu_items",
+        blank=True
+    )
+
+    # Featured item
+    is_featured = models.BooleanField(
+        default=False,
+        help_text="Mark as featured dish"
+    )
+
+    # Availability
+    is_available = models.BooleanField(
+        default=True,
+        help_text="Indicates if the item is currently available"
+    )
+
+    # Cuisine category
     cuisine = models.ForeignKey(
         'Cuisine',
         on_delete=models.SET_NULL,
@@ -108,15 +124,15 @@ class MenuItem(models.Model):
         help_text="Select the cuisine category for this dish"
     )
 
-    # Discount field
+    # Discount
     discount_percentage = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         default=0.00,
-        help_text="Discount percentage (0-100)"
+        help_text="Discount percentage (0–100)"
     )
 
-    # Calories field
+    # Calories
     calories = models.IntegerField(
         null=True,
         blank=True,
@@ -130,7 +146,7 @@ class MenuItem(models.Model):
         help_text="Comma-separated allergens (e.g., gluten, nuts, dairy)"
     )
 
-    # 🆕 Gluten-Free field
+    # Gluten-free
     is_gluten_free = models.BooleanField(
         default=False,
         help_text="Indicates if the menu item is gluten-free."
@@ -143,7 +159,7 @@ class MenuItem(models.Model):
             return f"{self.name} ({'Available' if self.is_available else 'Unavailable'}) - Allergens: {self.allergens}"
         return f"{self.name} ({'Available' if self.is_available else 'Unavailable'})"
 
-    # Calculate final price after discount
+    # Final price after discount
     def get_final_price(self):
         if not self.discount_percentage or self.discount_percentage <= 0:
             return float(self.price)
@@ -160,7 +176,7 @@ class MenuItem(models.Model):
             is_available=True
         )
 
-    # 🆕 NEW — Check if this item is today's daily special
+    # Check if item is today's daily special
     def is_daily_special(self):
         today = timezone.now().date()
         return DailySpecial.objects.filter(menu_item=self, date=today).exists()
