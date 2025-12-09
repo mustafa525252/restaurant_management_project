@@ -269,3 +269,12 @@ class Discount(models.Model):
 
     def __str__(self):
         return f"{self.code} ({self.percentage}%)"
+    
+    
+class Table(models.Model):
+    table_number = models.IntegerField(unique=True)
+    capacity = models.IntegerField()
+    is_available = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Table {self.table_number} (Capacity: {self.capacity})"
