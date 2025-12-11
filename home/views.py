@@ -24,7 +24,8 @@ from .models import (
     OpeningHour,
     FAQ,
     Cuisine,
-    UserReviews
+    UserReviews,
+    Ingredient,
 )
 
 from .serializers import (
@@ -44,7 +45,8 @@ from .serializers import (
     RestaurantDetailSerializer,
     MenuItemDetailSerializer,
     FAQSerializer,
-    CuisineSerializer
+    CuisineSerializer,
+    IngredientSerializer,
 )
 from .utils import send_order_confirmation_email
 from home import serializers
@@ -597,3 +599,7 @@ class FeaturedMenuItemsAPIView(APIView):
         featured_items = MenuItem.objects.filter(is_featured=True)
         serializer = MenuItemSerializer(featured_items, many=True)
         return Response(serializer.data)
+    
+class IngredientViewSet(ModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
