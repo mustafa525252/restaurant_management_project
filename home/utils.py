@@ -296,3 +296,15 @@ def generate_reservation_confirmation_number(length=10):
         
 def format_currency(amount):
     return f"${amount:.2f}"
+
+
+def estimate_table_turnover_time(table_capacity):
+    """
+    Estimate dining duration (in minutes) based on table capacity.
+    """
+    if table_capacity <= 2:
+        return 60
+    elif table_capacity <= 4:
+        return 90
+    else:
+        return 120
