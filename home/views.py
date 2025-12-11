@@ -590,3 +590,10 @@ class MenuItemReviewCreateView(APIView):
 
         serializer = UserReviewSerializer(review)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    
+class FeaturedMenuItemsAPIView(APIView):
+    def get(self, request):
+        featured_items = MenuItem.objects.filter(is_featured=True)
+        serializer = MenuItemSerializer(featured_items, many=True)
+        return Response(serializer.data)
