@@ -10,6 +10,7 @@ from home.models import Table
 import string
 import random
 from home.models import Reservation
+from django.utils import timezone
 
 def send_order_confirmation_email(order_id, customer_email, customer_name, order_items, total_amount):
     """
@@ -265,24 +266,31 @@ def get_available_tables_by_capacity(num_guests):
 
 def is_restaurant_open():
     """
-    Returns True if the restaurant is currently open based on hardcoded hours.
-    Example hours: Monday–Friday, 9:00 AM to 10:00 PM.
-    Weekends closed.
+    Returns True if the restaurant is currently open
+    based on DailyOperatingHours model.
     """
-    now = datetime.datetime.now()
-    current_day = now.weekday()  # Monday = 0, Sunday = 6
+
+    now = timezone.localtime(timezone.now())
+    current_day = now.strftime("%A")  # e.g. Monday
     current_time = now.time()
 
-    # Hardcoded schedule: Monday–Friday, 09:00–22:00
-    opening_time = datetime.time(hour=9, minute=0)
-    closing_time = datetime.time(hour=22, minute=0)
+    try:
+        today_hours = DailyOperatingHours.objects.get(day=current_day)
 
-    # Closed on weekends
-    if current_day >= 5:  # 5 = Saturday, 6 = Sunday
+        # If restaurant is marked closed for today
+        if not today_hours.is_open:
+            return False
+
+        # Check if current time is within operating hours
+        return (
+            today_hours.opening_time
+            <= current_time
+            <= today_hours.closing_time
+        )
+
+    except DailyOperatingHours.DoesNotExist:
+        # No schedule found for today
         return False
-
-    # Check if current time is within the operating hours
-    return opening_time <= current_time <= closing_time
 
 
 
