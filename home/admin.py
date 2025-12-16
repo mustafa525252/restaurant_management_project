@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Restaurant, MenuItem, Table
+from .models import Restaurant, MenuItem, Table, DailyOperatingHours
 
 # ------------------------------------------
 # Restaurant Admin
@@ -61,3 +61,6 @@ class TableAdmin(admin.ModelAdmin):
 
     # ⭐ Optional: make availability editable from list view
     # list_editable = ("is_available",)
+
+
+admin.site.register(DailyOperatingHours)
