@@ -468,3 +468,29 @@ class Ingredient(models.Model):
 
     def __str__(self):
         return self.name
+    
+class DailyOperatingHours(models.Model):
+    DAY_CHOICES = [
+        ("Monday", "Monday"),
+        ("Tuesday", "Tuesday"),
+        ("Wednesday", "Wednesday"),
+        ("Thursday", "Thursday"),
+        ("Friday", "Friday"),
+        ("Saturday", "Saturday"),
+        ("Sunday", "Sunday"),
+    ]
+
+    restaurant = models.ForeignKey(
+        Restaurant,
+        on_delete=models.CASCADE,
+        related_name="operating_hours"
+    )
+    day_of_week = models.CharField(max_length=9, choices=DAY_CHOICES)
+    opening_time = models.TimeField()
+    closing_time = models.TimeField()
+
+    class Meta:
+        unique_together = ("restaurant", "day_of_week")
+
+    def __str__(self):
+        return f"{self.restaurant.name} - {self.day_of_week}"
